@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlashDotNet", "FlashDotNet\FlashDotNet.csproj", "{2B8852D3-9BAD-4690-A6F1-EE0088B61539}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B8852D3-9BAD-4690-A6F1-EE0088B61539}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B8852D3-9BAD-4690-A6F1-EE0088B61539}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B8852D3-9BAD-4690-A6F1-EE0088B61539}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B8852D3-9BAD-4690-A6F1-EE0088B61539}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
