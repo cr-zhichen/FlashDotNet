@@ -200,12 +200,21 @@ app.UseEndpoints(endpoints =>
 
 #region 静态文件配置
 
+var resourcesPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources");
+
+if (!Directory.Exists(resourcesPath))
+{
+    Directory.CreateDirectory(resourcesPath);
+}
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "Resources")),
+    FileProvider = new PhysicalFileProvider(resourcesPath),
     RequestPath = "/Resources",
-    OnPrepareResponse = ctx => { ctx.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*"); }
+    OnPrepareResponse = ctx => 
+    {
+        ctx.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
+    }
 });
 
 #endregion
