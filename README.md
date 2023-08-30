@@ -59,6 +59,36 @@
 ### 📁 静态文件服务
 静态文件服务已配置，`Resources` 目录下文件可通过 `/Resources` 访问。此服务已设置跨域权限。
 
+## 📡 接口通用规则
+
+1. **响应格式** 🎯: 所有API的响应格式遵循 `IRe<T>` 接口定义。其中：
+    - 📊 `Code`：响应的状态码，基于 `Code` 枚举定义。
+        - 🟢 `Success`: 操作成功
+        - 🛑 `Error`: 未知错误
+        - 🔑 `TokenError`: Token错误
+    - 💬 `Message`：响应消息，例如错误描述。
+    - 📦 `Data`：响应的具体数据。
+
+2. **WebSocket响应格式** 🌐: 所有WebSocket的响应格式遵循 `IWsRe<T>` 接口定义。其中：
+    - 📍 `Route`：WebSocket返回的路由，基于 `Route` 枚举定义。
+    - 💬 `Message`：响应消息。
+    - 📦 `Data`：响应的具体数据。
+
+3. **WebSocket请求格式** 📟: 所有WebSocket的请求格式遵循 `WsReq` 类定义。其中：
+    - 📍 `Route`：WebSocket请求的路由。
+    - 📦 `Data`：请求的具体数据。
+
+4. **异常处理** ⚠️: 
+    - 使用 `CustomerExceptionFilter` 过滤器捕捉所有异常。异常响应会返回 `Code.Error` 和具体的异常消息。
+    - 使用 `ModelValidateActionFilterAttribute` 过滤器处理模型验证失败。当数据验证失败时，会返回 `Code.Error` 和描述消息。
+
+5. **数据验证** ❌: 当输入数据不符合API预期格式或内容时，响应将返回描述性错误消息。
+
+6. **认证和授权** 🔐: 使用JWT进行身份验证。Token错误会返回 `Code.TokenError` 和描述消息。
+
+请确保在实际使用中遵循以上规则以保持一致性和可预测性。
+
+
 ## 🚀 快速开始
 
 1. 克隆本仓库
