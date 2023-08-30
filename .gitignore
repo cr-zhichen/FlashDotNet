@@ -42,3 +42,9 @@ msbuild.wrn
 
 # Visual Studio 2015
 .vs/
+
+# Log
+[Ll]ogs/
+
+# Sqlite files
+*.db
