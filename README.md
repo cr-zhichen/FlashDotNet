@@ -1,13 +1,13 @@
-# FlashDotNet
+# 🛠️ FlashDotNet
 
-🚀 轻松上手的 DotNet Core API 快速开发框架。
+轻松上手的 DotNet Core API 快速开发框架。
 
 ## 📌 特性
 
-- 🔧 基于 `.NET 6.0`
-- ✅ 启用了 Nullable 参考类型
-- 🔄 启用了 Implicit Usings
-- 📄 Debug/Release 配置下自动生成文档
+- 基于 `.NET 6.0`
+- 启用了 Nullable 参考类型
+- 启用了 Implicit Usings
+- Debug/Release 配置下自动生成文档
 
 ## 📂 目录指南
 
@@ -61,6 +61,6 @@
 
 ## 🚀 快速开始
 
-1. ⬇️ 克隆本仓库
-2. 📦 运行 `dotnet restore`
-3. ▶️ 启动项目：`dotnet run`
+1. 克隆本仓库
+2. 运行 `dotnet restore`
+3. 启动项目：`dotnet run`
