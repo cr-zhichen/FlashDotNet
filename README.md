@@ -1,1 +1,3 @@
-# 校园安全后端服务器
+# FlashDotNet
+
+DotNet Core API开发的快速开启框架
