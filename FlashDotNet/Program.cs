@@ -139,6 +139,7 @@ if (app.Environment.IsDevelopment())
 #region 基础中间件配置
 
 app.UseRouting();
+app.UseCors("AllowAll"); 
 app.UseAuthentication();
 app.UseAuthorization();
 
