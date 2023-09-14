@@ -1,14 +1,21 @@
 {
-    "name": ".NET Core 6.0",
-    "image": "mcr.microsoft.com/vscode/devcontainers/dotnet:6.0",
+    "name": ".NET Core 6.0 & Node.js",
+    "image": "mcr.microsoft.com/vscode/devcontainers/dotnet:6.0", 
     "customizations": {
         "vscode": {
             "extensions": [
-                "ms-dotnettools.csharp"
+                "ms-dotnettools.csharp", 
+                "dbaeumer.vscode-eslint", 
+                "esbenp.prettier-vscode"
             ],
             "settings": {
                 "terminal.integrated.shell.linux": "/bin/bash"
             }
+        }
+    },
+    "features": {
+        "node": {
+            "version": "lts"
         }
     }
 }

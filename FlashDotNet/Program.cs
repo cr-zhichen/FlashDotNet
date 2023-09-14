@@ -192,7 +192,7 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapGet("/", httpContext =>
     {
-        httpContext.Response.Redirect("/swagger");
+        httpContext.Response.Redirect("/index.html");
         return Task.CompletedTask;
     });
 });
@@ -200,6 +200,8 @@ app.UseEndpoints(endpoints =>
 #endregion
 
 #region 静态文件配置
+
+app.UseStaticFiles();
 
 var resourcesPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources");
 
@@ -211,7 +213,7 @@ if (!Directory.Exists(resourcesPath))
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(resourcesPath),
-    RequestPath = "/Resources",
+    RequestPath = "/resources",
     OnPrepareResponse = ctx => 
     {
         ctx.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
