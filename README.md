@@ -32,7 +32,14 @@
 
 ### 🖋️ Serilog 日志系统
 
-使用了 Serilog 作为日志提供程序。记录包括输出到控制台和每日滚动文件 `Logs/Log.txt`。
+使用了 Serilog 作为日志提供程序。日志记录方式如下：
+
+- 输出到控制台。
+- 记录到每日滚动文件夹：
+  - 所有日志：`Logs/AllLogs/Log.txt`
+  - 信息级别日志：`Logs/Information/Log-Information-.txt`
+  - 警告级别日志：`Logs/Warning/Log-Warning-.txt`
+  - 错误级别日志：`Logs/Error/Log-Error-.txt`
 
 ### 🌍 跨域设置
 

@@ -20,7 +20,10 @@ var baseDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)
 // 配置Serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    .WriteTo.File("Logs/Log.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.File("Logs/AllLogs/Log.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.File("Logs/Information/Log-Information-.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information, rollingInterval: RollingInterval.Day)
+    .WriteTo.File("Logs/Warning/Log-Warning-.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
+    .WriteTo.File("Logs/Error/Log-Error-.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error, rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
