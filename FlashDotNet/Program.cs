@@ -9,21 +9,22 @@ using FlashDotNet.Filter;
 using FlashDotNet.Jwt;
 using FlashDotNet.Static;
 using FlashDotNet.WS;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
 
 #region 应用构建器与配置
 
-var baseDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location);
+var baseDirectory = Path.GetDirectoryName(AppContext.BaseDirectory);
 
 // 配置Serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    .WriteTo.File("Logs/AllLogs/Log.txt", rollingInterval: RollingInterval.Day)
-    .WriteTo.File("Logs/Information/Log-Information-.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information, rollingInterval: RollingInterval.Day)
-    .WriteTo.File("Logs/Warning/Log-Warning-.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
-    .WriteTo.File("Logs/Error/Log-Error-.txt", restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error, rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/AllLogs/Log.txt"), rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Information/Log-Information-.txt"), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information, rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Warning/Log-Warning-.txt"), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Error/Log-Error-.txt"), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error, rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -123,7 +124,16 @@ builder.Services.AddSwaggerGen(c => { c.CustomSchemaIds(x => x.FullName); });
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<WebSocketController>();
-builder.Services.AddDbContext<AppDbContext>(options => { options.UseSqlite("Data Source=App.db"); });
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite($"Data Source={Path.Combine(baseDirectory, "App.db")}")
+);
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // 如果在开发环境中使用了代理服务器，需要添加下面的代码以防止环回网络地址的错误
+    // options.KnownNetworks.Clear();
+    // options.KnownProxies.Clear();
+});
 
 #endregion
 
@@ -142,7 +152,7 @@ if (app.Environment.IsDevelopment())
 #region 基础中间件配置
 
 app.UseRouting();
-app.UseCors("AllowAll"); 
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -217,7 +227,7 @@ app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(resourcesPath),
     RequestPath = "/resources",
-    OnPrepareResponse = ctx => 
+    OnPrepareResponse = ctx =>
     {
         ctx.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
     }
