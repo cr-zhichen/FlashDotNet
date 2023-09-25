@@ -51,8 +51,15 @@ public interface IJwtService
 // 实现
 public class JwtService : IJwtService
 {
-    public Jwt.TokenOptions TokenOptions { get; }
+    /// <summary>
+    /// 令牌选项
+    /// </summary>
+    private Jwt.TokenOptions TokenOptions { get; }
 
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    /// <param name="options"></param>
     public JwtService(IOptions<Jwt.TokenOptions> options)
     {
         TokenOptions = options.Value;

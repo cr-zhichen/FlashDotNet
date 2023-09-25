@@ -16,7 +16,12 @@ public class AppDbContext : DbContext
     }
 
     /// <summary>
-    /// 配置数据库
+    /// TestDataBase 表
+    /// </summary>
+    public DbSet<TestDataBase> TestDataBases { get; set; }
+
+    /// <summary>
+    /// 数据库配置
     /// </summary>
     /// <param name="optionsBuilder"></param>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -24,10 +29,15 @@ public class AppDbContext : DbContext
     }
 
     /// <summary>
-    /// 配置数据库
+    /// 配置模型
     /// </summary>
     /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // 配置 TestDataBase 表中的Role字段 枚举类型与字符串类型的转换
+        modelBuilder
+            .Entity<TestDataBase>()
+            .Property(e => e.Role)
+            .HasConversion<string>();
     }
 }
