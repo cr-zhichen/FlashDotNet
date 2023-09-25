@@ -37,7 +37,7 @@ public class AuthAttribute : ActionFilterAttribute
             var errorObject = new Error<object>
             {
                 Code = Code.TokenError,
-                Message = "Token错误"
+                Message = "Token验证失败"
             };
 
             context.Result = new JsonResult(errorObject) { StatusCode = 200 };
