@@ -22,9 +22,12 @@ var baseDirectory = Path.GetDirectoryName(AppContext.BaseDirectory);
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File(Path.Combine(baseDirectory, "Logs/AllLogs/Log.txt"), rollingInterval: RollingInterval.Day)
-    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Information/Log-Information-.txt"), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information, rollingInterval: RollingInterval.Day)
-    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Warning/Log-Warning-.txt"), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
-    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Error/Log-Error-.txt"), restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error, rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Information/Log-Information-.txt"),
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information, rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Warning/Log-Warning-.txt"),
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Error/Log-Error-.txt"),
+        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error, rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -227,10 +230,7 @@ app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(resourcesPath),
     RequestPath = "/resources",
-    OnPrepareResponse = ctx =>
-    {
-        ctx.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-    }
+    OnPrepareResponse = ctx => { ctx.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*"); }
 });
 
 #endregion

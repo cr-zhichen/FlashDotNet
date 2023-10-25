@@ -1,0 +1,16 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="linux-arm64" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" delete_existing_files="true" include_native_libs_for_self_extract="true" platform="Any CPU" produce_single_file="true" ready_to_run="true" runtime="linux-arm64" self_contained="true" target_folder="./Build/Linux/arm64" target_framework="net6.0" trim_unused_assemblies="true" uuid_high="3136848209266951824" uuid_low="-6417086307965201095" />
+    <method v="2">
+      <option name="NpmBeforeRunTask" enabled="true">
+        <package-json value="$PROJECT_DIR$/FlashDotNet/ClientApp/package.json" />
+        <command value="run" />
+        <scripts>
+          <script value="build" />
+        </scripts>
+        <node-interpreter value="project" />
+        <envs />
+      </option>
+    </method>
+  </configuration>
+</component>
