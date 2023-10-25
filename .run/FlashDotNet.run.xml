@@ -20,15 +20,6 @@
         <node-interpreter value="project" />
         <envs />
       </option>
-      <option name="NpmBeforeRunTask" enabled="true">
-        <package-json value="$PROJECT_DIR$/FlashDotNet/ClientApp/package.json" />
-        <command value="run" />
-        <scripts>
-          <script value="dev" />
-        </scripts>
-        <node-interpreter value="project" />
-        <envs />
-      </option>
       <option name="Build" />
     </method>
   </configuration>

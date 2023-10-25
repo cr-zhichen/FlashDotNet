@@ -35,6 +35,7 @@ public class CommandController : ControllerBase
     /// </summary>
     /// <param name="context"></param>
     /// <param name="configuration"></param>
+    /// <param name="jwtService"></param>
     public CommandController(AppDbContext context, IConfiguration configuration, IJwtService jwtService)
     {
         _context = context;
