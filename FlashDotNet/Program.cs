@@ -2,6 +2,7 @@ using System.Reflection;
 using System.Text;
 using FlashDotNet;
 using FlashDotNet.Data;
+using FlashDotNet.Enum;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -130,9 +131,6 @@ builder.Services.AddSwaggerGen(c => { c.CustomSchemaIds(x => x.FullName); });
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<WebSocketController>();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite($"Data Source={Path.Combine(baseDirectory, "App.db")}")
-);
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -140,6 +138,44 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     // options.KnownNetworks.Clear();
     // options.KnownProxies.Clear();
 });
+
+#endregion
+
+#region 数据库连接配置
+
+var databaseOptions = (builder.Configuration.GetSection("DefaultConnection").Get<string>() ?? "").ToLower();
+
+Console.WriteLine($"数据库类型：{databaseOptions}");
+
+if (databaseOptions == nameof(DatabaseType.Mysql).ToLower())
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseMySql(builder.Configuration.GetConnectionString("MySqlConnection"),
+            ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MySqlConnection"))));
+}
+
+if (databaseOptions == nameof(DatabaseType.Postgresql).ToLower())
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlConnection")));
+}
+
+if (databaseOptions == nameof(DatabaseType.Sqlite).ToLower())
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection")));
+}
+
+if (databaseOptions == nameof(DatabaseType.Sqlserver).ToLower())
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite($"Data Source={Path.Combine(baseDirectory, "App.db")}"));
+}
 
 #endregion
 
