@@ -28,7 +28,7 @@ public class UserRepository : IUserRepository, IMarker
     /// <returns></returns>
     public async Task<bool> IsEmptyAsync()
     {
-        return await _context.TestUser.AnyAsync();
+        return !await _context.TestUser.AnyAsync();
     }
 
     /// <summary>

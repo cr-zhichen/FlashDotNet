@@ -195,10 +195,11 @@ public class JwtService : IJwtService
     /// <returns></returns>
     public Task LogoutAsync(string token)
     {
-        var tokenToRemove = TokenList.TokenLists.Find(x => x.Token == token);
-        if (tokenToRemove != null)
+        //从TokenList.TokenLists中移除令牌
+        var tokenToRemove = TokenList.TokenLists.FindAll(x => x.Token == token);
+        foreach (var tokenItem in tokenToRemove)
         {
-            TokenList.TokenLists.Remove(tokenToRemove);
+            TokenList.TokenLists.Remove(tokenItem);
         }
 
         return Task.CompletedTask;
@@ -211,10 +212,10 @@ public class JwtService : IJwtService
     /// <returns></returns>
     public Task LogoutByUsernameAsync(string username)
     {
-        var tokenToRemove = TokenList.TokenLists.Find(x => x.Username == username);
-        if (tokenToRemove != null)
+        var tokenToRemove = TokenList.TokenLists.FindAll(x => x.Username == username);
+        foreach (var token in tokenToRemove)
         {
-            TokenList.TokenLists.Remove(tokenToRemove);
+            TokenList.TokenLists.Remove(token);
         }
 
         return Task.CompletedTask;
