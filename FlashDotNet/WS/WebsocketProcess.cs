@@ -1,8 +1,8 @@
-﻿using FlashDotNet.Entity.Re;
-using FlashDotNet.Entity.Req;
+﻿using FlashDotNet.DTOs;
+using FlashDotNet.DTOs.WebSocket.Requests;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Route = FlashDotNet.Entity.Enum.Route;
+using Route = FlashDotNet.Enum.Route;
 
 namespace FlashDotNet.WS;
 
@@ -27,7 +27,7 @@ public static class WebsocketProcess
         {
             var re = new WsError<JObject>()
             {
-                Route = Entity.Enum.Route.Error.ToString(),
+                Route = Route.Error.ToString(),
                 Message = "路由请求错误，请检查路由是否正确",
                 Data = JObject.FromObject(e),
             };
@@ -40,10 +40,10 @@ public static class WebsocketProcess
         switch (routeString)
         {
             //测试路由
-            case nameof(Entity.Enum.Route.Test):
+            case nameof(Route.Test):
                 await socket.SendMessageAsync(JObject.FromObject(new WsOk<JObject>()
                 {
-                    Route = Entity.Enum.Route.Test.ToString(),
+                    Route = Route.Test.ToString(),
                     Data = data.Data,
                 }));
                 break;
@@ -51,7 +51,7 @@ public static class WebsocketProcess
             default:
                 await socket.SendMessageAsync(JObject.FromObject(new WsError<JObject>()
                 {
-                    Route = Entity.Enum.Route.Error.ToString(), Message = "请求路由错误，请检查路由是否正确",
+                    Route = Route.Error.ToString(), Message = "请求路由错误，请检查路由是否正确",
                 }));
                 break;
         }

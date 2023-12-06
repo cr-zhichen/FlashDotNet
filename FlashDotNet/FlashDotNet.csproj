@@ -29,6 +29,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="DTOs\WebSocket\Responses\" />
       <Folder Include="Resources\" />
       <Folder Include="WS\RouteDispose\" />
     </ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace FlashDotNet.Entity.Enum;
+﻿namespace FlashDotNet.Enum;
 
 public enum Code
 {

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace FlashDotNet.Entity.Enum;
+﻿namespace FlashDotNet.Enum;
 
 /// <summary>
 /// Ws传递的路由

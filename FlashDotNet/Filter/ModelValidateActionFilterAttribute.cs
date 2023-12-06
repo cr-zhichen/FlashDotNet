@@ -1,5 +1,5 @@
-﻿using FlashDotNet.Entity.Enum;
-using FlashDotNet.Entity.Re;
+﻿using FlashDotNet.DTOs;
+using FlashDotNet.Enum;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;

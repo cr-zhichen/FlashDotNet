@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FlashDotNet.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace FlashDotNet.Database;
+namespace FlashDotNet.Data;
 
 /// <summary>
 /// 数据库上下文
@@ -16,9 +17,9 @@ public class AppDbContext : DbContext
     }
 
     /// <summary>
-    /// TestDataBase 表
+    /// TestUser 表
     /// </summary>
-    public DbSet<TestDataBase> TestDataBases { get; set; }
+    public DbSet<TestUser> TestUser { get; set; }
 
     /// <summary>
     /// 数据库配置
@@ -34,10 +35,14 @@ public class AppDbContext : DbContext
     /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // 配置 TestDataBase 表中的Role字段 枚举类型与字符串类型的转换
+        // 配置 TestUser 表的映射
         modelBuilder
-            .Entity<TestDataBase>()
-            .Property(e => e.Role)
-            .HasConversion<string>();
+            .Entity<TestUser>(entity =>
+            {
+                entity.HasKey(e => e.UserId).HasName("PRIMARY");
+                entity.Property(e => e.UserId).ValueGeneratedOnAdd();
+                entity.HasIndex(u => u.Username).IsUnique();
+                entity.Property(e => e.Role).HasConversion<string>();
+            });
     }
 }

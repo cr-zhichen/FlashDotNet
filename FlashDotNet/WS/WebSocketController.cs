@@ -1,13 +1,12 @@
 ﻿using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
+using FlashDotNet.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using FlashDotNet.Entity.Enum;
-using FlashDotNet.Database;
-using FlashDotNet.Entity.Re;
-using FlashDotNet.Entity.Req;
-using Route = FlashDotNet.Entity.Enum.Route;
+using FlashDotNet.DTOs;
+using FlashDotNet.DTOs.WebSocket.Requests;
+using Route = FlashDotNet.Enum.Route;
 
 namespace FlashDotNet.WS
 {
@@ -58,7 +57,7 @@ namespace FlashDotNet.WS
 
             IWsRe<JObject> send = new WsOk<JObject>()
             {
-                Route = Entity.Enum.Route.First.ToString(),
+                Route = Route.First.ToString(),
                 Data = JObject.FromObject(new
                 {
                     SocketId = socketId

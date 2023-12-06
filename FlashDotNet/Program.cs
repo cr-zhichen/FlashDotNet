@@ -1,12 +1,14 @@
 using System.Reflection;
 using System.Text;
-using FlashDotNet.Database;
+using FlashDotNet.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using FlashDotNet.Filter;
 using FlashDotNet.Jwt;
+using FlashDotNet.Repositories.TestUser;
+using FlashDotNet.Services.TestServices;
 using FlashDotNet.Static;
 using FlashDotNet.WS;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -137,6 +139,12 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     // options.KnownNetworks.Clear();
     // options.KnownProxies.Clear();
 });
+
+// 数据库操作接口注入
+builder.Services.AddScoped<ITestUserRepository, TestUserRepository>();
+
+// 服务接口注入
+builder.Services.AddScoped<ITestServices, TestServices>();
 
 #endregion
 
