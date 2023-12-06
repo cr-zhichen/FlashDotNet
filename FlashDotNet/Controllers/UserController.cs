@@ -13,20 +13,20 @@ namespace FlashDotNet.Controllers;
 /// </summary>
 [ApiController]
 [Route("[controller]")]
-public class TestController : ControllerBase
+public class UserController : ControllerBase
 {
     /// <summary>
     /// 用户服务
     /// </summary>
-    private readonly ITestServices _testServices;
+    private readonly IUserServices _userServices;
 
     /// <summary>
     /// 构造函数
     /// </summary>
-    /// <param name="testServices"></param>
-    public TestController(ITestServices testServices)
+    /// <param name="userServices"></param>
+    public UserController(IUserServices userServices)
     {
-        _testServices = testServices;
+        _userServices = userServices;
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ public class TestController : ControllerBase
     [HttpPost("register")]
     public async Task<IRe<RegisterResponse>> RegisterAsync(RegisterRequest request)
     {
-        return await _testServices.RegisterAsync(request);
+        return await _userServices.RegisterAsync(request);
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class TestController : ControllerBase
     [HttpPost("login")]
     public async Task<IRe<LoginResponse>> LoginAsync(LoginRequest request)
     {
-        return await _testServices.LoginAsync(request);
+        return await _userServices.LoginAsync(request);
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public class TestController : ControllerBase
     [HttpGet("getAll")]
     public async Task<IRe<List<GetUserListResponse>>> GetUserListAsync()
     {
-        return await _testServices.GetUserListAsync();
+        return await _userServices.GetUserListAsync();
     }
 
     /// <summary>
@@ -71,6 +71,6 @@ public class TestController : ControllerBase
     {
         // 获取Token
         var token = Request.Headers["Authorization"].ToString().Split(' ').Last();
-        return await _testServices.GetUserInfoAsync(token);
+        return await _userServices.GetUserInfoAsync(token);
     }
 }

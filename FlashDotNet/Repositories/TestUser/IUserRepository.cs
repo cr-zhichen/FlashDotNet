@@ -5,7 +5,7 @@ namespace FlashDotNet.Repositories.TestUser;
 /// <summary>
 /// 和TestUser相关的数据库操作
 /// </summary>
-public interface ITestUserRepository
+public interface IUserRepository
 {
     /// <summary>
     /// 判断数据库中用户表是否为空
@@ -20,7 +20,7 @@ public interface ITestUserRepository
     /// <param name="password"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    Task<Models.TestUser> CreateUserAsync(string username, string password, UserRole role = UserRole.User);
+    Task<Models.User> CreateUserAsync(string username, string password, UserRole role = UserRole.User);
 
     /// <summary>
     /// 判断密码是否正确
@@ -55,5 +55,5 @@ public interface ITestUserRepository
     /// 获取用户列表
     /// </summary>
     /// <returns></returns>
-    Task<List<Models.TestUser>> GetUserListAsync();
+    Task<List<Models.User>> GetUserListAsync();
 }

@@ -8,7 +8,7 @@ namespace FlashDotNet.Repositories.TestUser;
 /// <summary>
 /// 和TestUser相关的数据库操作
 /// </summary>
-public class TestUserRepository : ITestUserRepository
+public class UserRepository : IUserRepository
 {
     private readonly AppDbContext _context;
 
@@ -16,7 +16,7 @@ public class TestUserRepository : ITestUserRepository
     /// 构造函数
     /// </summary>
     /// <param name="context"></param>
-    public TestUserRepository(AppDbContext context)
+    public UserRepository(AppDbContext context)
     {
         _context = context;
     }
@@ -37,9 +37,9 @@ public class TestUserRepository : ITestUserRepository
     /// <param name="password"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    public async Task<Models.TestUser> CreateUserAsync(string username, string password, UserRole role = UserRole.User)
+    public async Task<Models.User> CreateUserAsync(string username, string password, UserRole role = UserRole.User)
     {
-        var user = new Models.TestUser
+        var user = new Models.User
         {
             Username = username,
             Password = password.ToArgon2(username),
@@ -99,7 +99,7 @@ public class TestUserRepository : ITestUserRepository
     /// 获取用户列表
     /// </summary>
     /// <returns></returns>
-    public async Task<List<Models.TestUser>> GetUserListAsync()
+    public async Task<List<Models.User>> GetUserListAsync()
     {
         return await _context.TestUser.ToListAsync();
     }

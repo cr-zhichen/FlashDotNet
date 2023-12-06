@@ -7,7 +7,7 @@ namespace FlashDotNet.Services.TestServices;
 /// <summary>
 /// 和测试相关的服务接口
 /// </summary>
-public interface ITestServices
+public interface IUserServices
 {
     /// <summary>
     /// 用户注册

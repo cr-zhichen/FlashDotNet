@@ -5,10 +5,10 @@ using FlashDotNet.Enum;
 namespace FlashDotNet.Models;
 
 /// <summary>
-/// 表示数据库中的TestDataBase表。
+/// 表示数据库中的User表。
 /// </summary>
-[Table("TestUser")]
-public class TestUser
+[Table("User")]
+public class User
 {
     /// <summary>
     /// 主键 ID

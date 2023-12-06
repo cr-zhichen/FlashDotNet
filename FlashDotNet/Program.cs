@@ -141,10 +141,10 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 // 数据库操作接口注入
-builder.Services.AddScoped<ITestUserRepository, TestUserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // 服务接口注入
-builder.Services.AddScoped<ITestServices, TestServices>();
+builder.Services.AddScoped<IUserServices, UserServices>();
 
 #endregion
 

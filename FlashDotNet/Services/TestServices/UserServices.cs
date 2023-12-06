@@ -10,12 +10,12 @@ namespace FlashDotNet.Services.TestServices;
 /// <summary>
 /// 和测试相关的服务
 /// </summary>
-public class TestServices : ITestServices
+public class UserServices : IUserServices
 {
     /// <summary>
     /// 用户相关的数据库操作
     /// </summary>
-    private readonly ITestUserRepository _userRepository;
+    private readonly IUserRepository _userRepository;
 
     /// <summary>
     /// JWT相关的服务
@@ -27,7 +27,7 @@ public class TestServices : ITestServices
     /// </summary>
     /// <param name="userRepository"></param>
     /// <param name="jwtService"></param>
-    public TestServices(ITestUserRepository userRepository, IJwtService jwtService)
+    public UserServices(IUserRepository userRepository, IJwtService jwtService)
     {
         _userRepository = userRepository;
         _jwtService = jwtService;
