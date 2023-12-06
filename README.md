@@ -11,22 +11,28 @@
 
 ## 📂 目录指南
 
-- 🗄️ **App.db**: 主数据库文件（生成时自动创建）
-- ⚙️ **appsettings.json**: 项目配置
-- 🎫 **Attribute**: 属性相关，如 `AuthAttribute`
-- 🎛️ **Controllers**: 控制中心，如 `CommandController`
-- 📁 **Database**: 数据库核心，包括 `AppDbContext`
-- 📊 **Entity**: 实体及其子类
-- 🚧 **Filter**: 过滤机制，如 `CustomerExceptionFilter`
-- 🔑 **Jwt**: JWT 机制和配置
-- 🔄 **Migrations**: 数据库迁移记录
-- 🚀 **Program.cs**: 启动入口
-- ⚙️ **Properties**: 如 `launchSettings`
-- 📄 **Resources**: 静态资源，可通过 `{url}/resources`访问
-- 📚 **Static**: 包括静态资料如 `TokenList`
-- 🌐 **WS**: WebSocket 功能及配置
-- 🎨 **ClientApp**: Vue 的工程文件，包括所有前端代码、组件、资源等。
-- 🌍 **wwwroot**: Vue 打包完成后的文件，用于生产环境部署。
+- 🗄️ **App.db**: 主数据库文件。
+- ⚙️ **appsettings.json**: 项目的配置文件。
+- 🎫 **Attribute**: 包含诸如 `AuthAttribute.cs` 的属性相关文件。
+- 🎛️ **Controllers**: 控制器目录，例如 `TestController.cs`。
+- 📁 **DTOs**: 数据传输对象目录，包括 HTTP 和 WebSocket 相关类，如 `Re.cs` 和 `WsRe.cs`。
+- 📁 **Data**: 包含 `AppDbContext.cs` 的数据库核心目录。
+- 🚧 **Filter**: 过滤器目录，包含例如 `CustomerExceptionFilter.cs` 和 `ModelValidateActionFilterAttribute.cs` 的过滤机制。
+- 🔑 **Jwt**: 包含 JWT 机制和配置的目录，如 `IJwtService.cs` 和 `TokenOptions.cs`。
+- 📁 **Models**: 模型目录，例如 `TestUser.cs`。
+- 🚀 **Program.cs**: 应用程序的启动入口。
+- ⚙️ **Properties**: 包含例如 `launchSettings.json` 的属性文件目录。
+- 📁 **Repositories**: 存储库目录，例如 `TestUser`。
+- 📄 **Resources**: 静态资源目录。
+- 📁 **Services**: 服务目录，例如 `TestServices`。
+- 📚 **Static**: 包含静态数据，如 `TokenList.cs` 的静态目录。
+- 📁 **Utils**: 实用工具目录，例如 `Expand.cs`。
+- 🌐 **WS**: 包含 WebSocket 功能及配置的目录，例如 `WebSocketController.cs` 和 `WebsocketProcess.cs`。
+- 🎨 **ClientApp**: Vue 的前端工程目录，包括所有前端代码、组件、资源等。
+- 🌍 **wwwroot**: 包含 Vue 打包后的生产环境部署文件。
+- 📁 **Build**: 包含构建相关文件夹，如 `Portable`。
+- 📁 **Enum**: 枚举类型目录，例如 `Code.cs`、`Route.cs` 和 `UserRole.cs`。
+- 📄 **Dockerfile**: Docker 配置文件。
 
 ## 🧰 配置及中间件介绍
 
@@ -36,10 +42,10 @@
 
 - 输出到控制台。
 - 记录到每日滚动文件夹：
-  - 所有日志：`Logs/AllLogs/Log.txt`
-  - 信息级别日志：`Logs/Information/Log-Information-.txt`
-  - 警告级别日志：`Logs/Warning/Log-Warning-.txt`
-  - 错误级别日志：`Logs/Error/Log-Error-.txt`
+    - 所有日志：`Logs/AllLogs/Log.txt`
+    - 信息级别日志：`Logs/Information/Log-Information-.txt`
+    - 警告级别日志：`Logs/Warning/Log-Warning-.txt`
+    - 错误级别日志：`Logs/Error/Log-Error-.txt`
 
 ### 🌍 跨域设置
 
@@ -82,28 +88,28 @@
 
 1. **响应格式** 🎯: 所有 API 的响应格式遵循 `IRe<T>` 接口定义。其中：
 
-   - 📊 `Code`：响应的状态码，基于 `Code` 枚举定义。
-     - 🟢 `Success`: 操作成功
-     - 🛑 `Error`: 未知错误
-     - 🔑 `TokenError`: Token 错误
-   - 💬 `Message`：响应消息，例如错误描述。
-   - 📦 `Data`：响应的具体数据。
+    - 📊 `Code`：响应的状态码，基于 `Code` 枚举定义。
+        - 🟢 `Success`: 操作成功
+        - 🛑 `Error`: 未知错误
+        - 🔑 `TokenError`: Token 错误
+    - 💬 `Message`：响应消息，例如错误描述。
+    - 📦 `Data`：响应的具体数据。
 
 2. **WebSocket 响应格式** 🌐: 所有 WebSocket 的响应格式遵循 `IWsRe<T>` 接口定义。其中：
 
-   - 📍 `Route`：WebSocket 返回的路由，基于 `Route` 枚举定义。
-   - 💬 `Message`：响应消息。
-   - 📦 `Data`：响应的具体数据。
+    - 📍 `Route`：WebSocket 返回的路由，基于 `Route` 枚举定义。
+    - 💬 `Message`：响应消息。
+    - 📦 `Data`：响应的具体数据。
 
 3. **WebSocket 请求格式** 📟: 所有 WebSocket 的请求格式遵循 `WsReq` 类定义。其中：
 
-   - 📍 `Route`：WebSocket 请求的路由。
-   - 📦 `Data`：请求的具体数据。
+    - 📍 `Route`：WebSocket 请求的路由。
+    - 📦 `Data`：请求的具体数据。
 
 4. **异常处理** ⚠️:
 
-   - 使用 `CustomerExceptionFilter` 过滤器捕捉所有异常。异常响应会返回 `Code.Error` 和具体的异常消息。
-   - 使用 `ModelValidateActionFilterAttribute` 过滤器处理模型验证失败。当数据验证失败时，会返回 `Code.Error` 和描述消息。
+    - 使用 `CustomerExceptionFilter` 过滤器捕捉所有异常。异常响应会返回 `Code.Error` 和具体的异常消息。
+    - 使用 `ModelValidateActionFilterAttribute` 过滤器处理模型验证失败。当数据验证失败时，会返回 `Code.Error` 和描述消息。
 
 5. **数据验证** ❌: 当输入数据不符合 API 预期格式或内容时，响应将返回描述性错误消息。
 
