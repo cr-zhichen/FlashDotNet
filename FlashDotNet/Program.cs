@@ -145,34 +145,34 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 var databaseOptions = (builder.Configuration.GetSection("DefaultConnection").Get<string>() ?? "").ToLower();
 
-Console.WriteLine($"数据库类型：{databaseOptions}");
-
 if (databaseOptions == nameof(DatabaseType.Mysql).ToLower())
 {
+    Console.WriteLine($"使用MySQL数据库");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseMySql(builder.Configuration.GetConnectionString("MySqlConnection"),
             ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MySqlConnection"))));
 }
-
-if (databaseOptions == nameof(DatabaseType.Postgresql).ToLower())
+else if (databaseOptions == nameof(DatabaseType.Postgresql).ToLower())
 {
+    Console.WriteLine($"使用PostgreSQL数据库");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlConnection")));
 }
-
-if (databaseOptions == nameof(DatabaseType.Sqlite).ToLower())
+else if (databaseOptions == nameof(DatabaseType.Sqlite).ToLower())
 {
+    Console.WriteLine($"使用Sqlite数据库");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection")));
 }
-
-if (databaseOptions == nameof(DatabaseType.Sqlserver).ToLower())
+else if (databaseOptions == nameof(DatabaseType.Sqlserver).ToLower())
 {
+    Console.WriteLine($"使用SqlServer数据库");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));
 }
 else
 {
+    Console.WriteLine($"使用Sqlite数据库");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite($"Data Source={Path.Combine(baseDirectory, "App.db")}"));
 }
