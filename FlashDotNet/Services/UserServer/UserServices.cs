@@ -6,7 +6,7 @@ using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
 using FlashDotNet.Repositories.TestUser;
 
-namespace FlashDotNet.Services.TestServices;
+namespace FlashDotNet.Services.UserServer;
 
 /// <summary>
 /// 和测试相关的服务

@@ -2,7 +2,7 @@
 using FlashDotNet.DTOs.HTTP.Requests;
 using FlashDotNet.DTOs.HTTP.Responses;
 
-namespace FlashDotNet.Services.TestServices;
+namespace FlashDotNet.Services.UserServer;
 
 /// <summary>
 /// 和测试相关的服务接口

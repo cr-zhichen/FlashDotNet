@@ -5,7 +5,7 @@ using FlashDotNet.Enum;
 using FlashDotNet.Jwt;
 using FlashDotNet.Models;
 using FlashDotNet.Repositories.TestUser;
-using FlashDotNet.Services.TestServices;
+using FlashDotNet.Services.UserServer;
 using Moq;
 
 namespace UnitTest.Services;

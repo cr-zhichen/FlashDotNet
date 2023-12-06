@@ -2,7 +2,7 @@
 using FlashDotNet.DTOs;
 using FlashDotNet.DTOs.HTTP.Requests;
 using FlashDotNet.DTOs.HTTP.Responses;
-using FlashDotNet.Services.TestServices;
+using FlashDotNet.Services.UserServer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
