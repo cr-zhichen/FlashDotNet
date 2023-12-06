@@ -44,7 +44,7 @@ public class UserServices : IUserServices, IMarker
         UserRole role = UserRole.User;
 
         //如果数据库中没有用户，那么注册的第一个用户就是管理员
-        if (!await _userRepository.IsEmptyAsync())
+        if (await _userRepository.IsEmptyAsync())
         {
             role = UserRole.Admin;
         }
