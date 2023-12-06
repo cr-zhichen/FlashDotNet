@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using FlashDotNet.Filter;
+using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
 using FlashDotNet.Repositories.TestUser;
 using FlashDotNet.Services.TestServices;

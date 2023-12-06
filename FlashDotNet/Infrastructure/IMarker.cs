@@ -1,4 +1,4 @@
-﻿namespace FlashDotNet;
+﻿namespace FlashDotNet.Infrastructure;
 
 /// <summary>
 /// 表示标记接口。

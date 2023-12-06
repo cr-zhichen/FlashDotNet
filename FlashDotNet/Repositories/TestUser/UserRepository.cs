@@ -1,5 +1,6 @@
 ﻿using FlashDotNet.Data;
 using FlashDotNet.Enum;
+using FlashDotNet.Infrastructure;
 using FlashDotNet.Utils;
 using Microsoft.EntityFrameworkCore;
 
