@@ -10,7 +10,7 @@ namespace FlashDotNet.Services.TestServices;
 /// <summary>
 /// 和测试相关的服务
 /// </summary>
-public class UserServices : IUserServices
+public class UserServices : IUserServices, IMarker
 {
     /// <summary>
     /// 用户相关的数据库操作

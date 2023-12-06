@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text;
+using FlashDotNet;
 using FlashDotNet.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -140,11 +141,17 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     // options.KnownProxies.Clear();
 });
 
-// 数据库操作接口注入
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+#endregion
 
-// 服务接口注入
-builder.Services.AddScoped<IUserServices, UserServices>();
+#region Scrutor自动注入
+
+builder.Services.Scan(scan => scan
+    // 指定要扫描的程序集（假设服务和仓库都在当前程序集）
+    .FromAssemblyOf<Program>()
+    .AddClasses(classes => classes.AssignableTo<IMarker>())
+    .AsImplementedInterfaces()
+    .WithScopedLifetime()
+);
 
 #endregion
 
