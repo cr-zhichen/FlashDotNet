@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Text;
-using FlashDotNet;
 using FlashDotNet.Data;
 using FlashDotNet.Enum;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,13 +9,14 @@ using Microsoft.OpenApi.Models;
 using FlashDotNet.Filter;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
-using FlashDotNet.Repositories.TestUser;
-using FlashDotNet.Static;
+using FlashDotNet.Utils;
 using FlashDotNet.WS;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
+
+StartupArt.Print();
 
 #region 应用构建器与配置
 
