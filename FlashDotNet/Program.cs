@@ -253,22 +253,21 @@ context.Database.EnsureCreated();
 
 #region 控制器与端点配置
 
+// 设置默认文件
+app.UseDefaultFiles(new DefaultFilesOptions
+{
+    DefaultFileNames = new List<string> { "index.html" }
+});
+
+app.UseStaticFiles(); // 静态文件中间件
+
 app.MapControllers();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapGet("/", httpContext =>
-    {
-        httpContext.Response.Redirect("/index.html");
-        return Task.CompletedTask;
-    });
-});
+app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
 #endregion
 
 #region 静态文件配置
-
-app.UseStaticFiles();
 
 var resourcesPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources");
 
