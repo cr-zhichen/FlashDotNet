@@ -1,5 +1,5 @@
-﻿using FlashDotNet.Enum;
-using FlashDotNet.Models;
+﻿using FlashDotNet.Attribute;
+using FlashDotNet.Enum;
 
 namespace FlashDotNet.DTOs.HTTP.Requests;
 
@@ -16,6 +16,7 @@ public class RegisterRequest
     /// <summary>
     /// 密码
     /// </summary>
+    [PasswordValidation(ErrorMessage = "密码必须包含至少一个大写字母、一个小写字母、一个数字和一个特殊字符")]
     public string Password { get; set; } = "";
 
     /// <summary>
@@ -37,5 +38,6 @@ public class LoginRequest
     /// <summary>
     /// 密码
     /// </summary>
+    [PasswordValidation(ErrorMessage = "密码必须包含至少一个大写字母、一个小写字母、一个数字和一个特殊字符")]
     public string Password { get; set; } = "";
 }
