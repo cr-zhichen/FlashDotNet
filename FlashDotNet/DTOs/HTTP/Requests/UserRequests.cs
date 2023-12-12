@@ -16,7 +16,7 @@ public class RegisterRequest
     /// <summary>
     /// 密码
     /// </summary>
-    [PasswordValidation(ErrorMessage = "密码必须包含至少一个大写字母、一个小写字母、一个数字和一个特殊字符")]
+    [PasswordValidation(ErrorMessage = "密码需要在数字、字母、特殊符号中三选二")]
     public string Password { get; set; } = "";
 
     /// <summary>
@@ -38,6 +38,6 @@ public class LoginRequest
     /// <summary>
     /// 密码
     /// </summary>
-    [PasswordValidation(ErrorMessage = "密码必须包含至少一个大写字母、一个小写字母、一个数字和一个特殊字符")]
+    [PasswordValidation(ErrorMessage = "密码需要在数字、字母、特殊符号中三选二")]
     public string Password { get; set; } = "";
 }

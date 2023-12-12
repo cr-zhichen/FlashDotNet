@@ -22,12 +22,11 @@ public class ModelValidateActionFilterAttribute : ActionFilterAttribute
                 .Select(e => e.Value.Errors.First().ErrorMessage)
                 .ToList();
 
-            var str = string.Join("|", errors);
-
             var result = new Ok<object>
             {
                 Code = Code.Error,
-                Message = "未通过数据验证，请检查传入参数",
+                Message = $"未通过数据验证，请检查传入参数",
+                Data = errors
             };
 
             context.Result = new ContentResult
