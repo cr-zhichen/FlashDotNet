@@ -15,10 +15,10 @@ public interface IJwtService
     /// <summary>
     /// 创建令牌
     /// </summary>
-    /// <param name="username"></param>
+    /// <param name="userId"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    Task<string> CreateTokenAsync(string username, string role);
+    Task<string> CreateTokenAsync(string userId, string role);
 
     /// <summary>
     /// 验证令牌身份
@@ -47,7 +47,7 @@ public interface IJwtService
     /// </summary>
     /// <param name="username"></param>
     /// <returns></returns>
-    Task LogoutByUsernameAsync(string username);
+    Task LogoutByIdAsync(string username);
 }
 
 /// <summary>
@@ -72,15 +72,15 @@ public class JwtService : IJwtService
     /// <summary>
     /// 创建令牌
     /// </summary>
-    /// <param name="username"></param>
+    /// <param name="userId"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    public Task<string> CreateTokenAsync(string username, string role)
+    public Task<string> CreateTokenAsync(string userId, string role)
     {
         // 添加一些需要的键值对
         Claim[] claims = new[]
         {
-            new Claim("user", username),
+            new Claim("user", userId),
             new Claim("role", role)
         };
 
@@ -103,12 +103,7 @@ public class JwtService : IJwtService
             signingCredentials: credentials); // 令牌
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-        TokenList.TokenLists.Add(new TokenList.TokenItem()
-        {
-            Username = username,
-            Token = token,
-            ExpireTime = expires ?? DateTime.MaxValue // 如果无过期时间，设置为最大值
-        });
+        TokenWhiteList.AddToken(userId, token, expires ?? DateTime.MaxValue);
 
         return Task.FromResult(token);
     }
@@ -122,7 +117,7 @@ public class JwtService : IJwtService
     public Task<bool> ValidateTokenAsync(string token, string requiredRole = "")
     {
         //判断令牌是否在缓存中
-        var isValid = TokenList.TokenLists.Any(x => x.Token == token);
+        var isValid = TokenWhiteList.ContainsToken(token);
 
         if (!isValid)
         {
@@ -206,11 +201,7 @@ public class JwtService : IJwtService
     public Task LogoutAsync(string token)
     {
         //从TokenList.TokenLists中移除令牌
-        var tokenToRemove = TokenList.TokenLists.FindAll(x => x.Token == token);
-        foreach (var tokenItem in tokenToRemove)
-        {
-            TokenList.TokenLists.Remove(tokenItem);
-        }
+        TokenWhiteList.RemoveToken(token);
 
         return Task.CompletedTask;
     }
@@ -218,15 +209,11 @@ public class JwtService : IJwtService
     /// <summary>
     /// 根据用户名注销令牌
     /// </summary>
-    /// <param name="username"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    public Task LogoutByUsernameAsync(string username)
+    public Task LogoutByIdAsync(string userId)
     {
-        var tokenToRemove = TokenList.TokenLists.FindAll(x => x.Username == username);
-        foreach (var token in tokenToRemove)
-        {
-            TokenList.TokenLists.Remove(token);
-        }
+        TokenWhiteList.RemoveTokenByUserId(userId);
 
         return Task.CompletedTask;
     }
