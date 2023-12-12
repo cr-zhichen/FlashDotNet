@@ -126,12 +126,13 @@ public class JwtService : IJwtService
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenOptions.SecretKey)),
             ValidateIssuer = true,
-            ValidIssuer = TokenOptions.Issuer,
             ValidateAudience = true,
-            ValidAudience = TokenOptions.Audience
+            ValidateLifetime = TokenOptions.ExpireMinutes != -1,
+            ValidateIssuerSigningKey = true,
+            ValidAudience = TokenOptions.Audience,
+            ValidIssuer = TokenOptions.Issuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenOptions.SecretKey))
         };
 
         try

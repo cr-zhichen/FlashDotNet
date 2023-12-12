@@ -105,20 +105,6 @@ builder.Services.Configure<TokenOptions>(options =>
     options.Audience = tokenOptions.Audience;
     options.ExpireMinutes = tokenOptions.ExpireMinutes;
 });
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidAudience = tokenOptions.Audience,
-            ValidIssuer = tokenOptions.Issuer,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenOptions.SecretKey))
-        };
-    });
 
 builder.Services.AddHostedService<TokenCleanupService>();
 
