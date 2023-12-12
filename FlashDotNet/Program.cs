@@ -106,6 +106,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddHostedService<TokenCleanupService>();
+
 #endregion
 
 #region Swagger配置
