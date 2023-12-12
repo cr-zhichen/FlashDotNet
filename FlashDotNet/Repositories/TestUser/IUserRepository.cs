@@ -20,7 +20,7 @@ public interface IUserRepository
     /// <param name="password"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    Task<Models.User> CreateUserAsync(string username, string password, UserRole role = UserRole.User);
+    Task<Models.UserInfo> CreateUserAsync(string username, string password, UserRole role = UserRole.User);
 
     /// <summary>
     /// 判断密码是否正确
@@ -55,5 +55,5 @@ public interface IUserRepository
     /// 获取用户列表
     /// </summary>
     /// <returns></returns>
-    Task<List<Models.User>> GetUserListAsync();
+    Task<List<Models.UserInfo>> GetUserListAsync();
 }

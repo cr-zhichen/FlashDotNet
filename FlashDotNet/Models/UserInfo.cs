@@ -7,13 +7,15 @@ namespace FlashDotNet.Models;
 /// <summary>
 /// 表示数据库中的User表。
 /// </summary>
-[Table("User")]
-public class User
+[Table("user_info")]
+public class UserInfo
 {
     /// <summary>
     /// 主键 ID
     /// </summary>
     [Key]
+    [Column("user_id")]
+    // ReSharper disable once PropertyCanBeMadeInitOnly.Global
     public int UserId { get; set; }
 
     /// <summary>
@@ -21,18 +23,24 @@ public class User
     /// </summary>
     [Required]
     [StringLength(100)]
-    public string Username { get; set; } = "";
+    [Column("username")]
+    // ReSharper disable once PropertyCanBeMadeInitOnly.Global
+    public string Username { get; set; } = null!;
 
     /// <summary>
     /// 密码
     /// </summary>
     [Required]
     [StringLength(100)]
-    public string Password { get; set; } = "";
+    [Column("password")]
+    // ReSharper disable once PropertyCanBeMadeInitOnly.Global
+    public string Password { get; set; } = null!;
 
     /// <summary>
     /// 权限
     /// </summary>
     [Required]
+    [Column("role")]
+    // ReSharper disable once PropertyCanBeMadeInitOnly.Global
     public UserRole Role { get; set; } = UserRole.User;
 }

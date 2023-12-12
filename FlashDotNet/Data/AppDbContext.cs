@@ -17,9 +17,9 @@ public class AppDbContext : DbContext
     }
 
     /// <summary>
-    /// User 表
+    /// UserInfo 表
     /// </summary>
-    public DbSet<User> TestUser { get; set; }
+    public DbSet<UserInfo> TestUser { get; set; }
 
     /// <summary>
     /// 数据库配置
@@ -35,9 +35,9 @@ public class AppDbContext : DbContext
     /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // 配置 User 表的映射
+        // 配置 UserInfo 表的映射
         modelBuilder
-            .Entity<User>(entity =>
+            .Entity<UserInfo>(entity =>
             {
                 entity.HasKey(e => e.UserId).HasName("PRIMARY");
                 entity.Property(e => e.UserId).ValueGeneratedOnAdd();

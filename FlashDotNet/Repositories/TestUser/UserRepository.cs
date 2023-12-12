@@ -38,9 +38,9 @@ public class UserRepository : IUserRepository, IMarker
     /// <param name="password"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    public async Task<Models.User> CreateUserAsync(string username, string password, UserRole role = UserRole.User)
+    public async Task<Models.UserInfo> CreateUserAsync(string username, string password, UserRole role = UserRole.User)
     {
-        var user = new Models.User
+        var user = new Models.UserInfo
         {
             Username = username,
             Password = password.ToArgon2(username),
@@ -100,7 +100,7 @@ public class UserRepository : IUserRepository, IMarker
     /// 获取用户列表
     /// </summary>
     /// <returns></returns>
-    public async Task<List<Models.User>> GetUserListAsync()
+    public async Task<List<Models.UserInfo>> GetUserListAsync()
     {
         return await _context.TestUser.ToListAsync();
     }
