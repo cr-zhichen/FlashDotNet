@@ -9,31 +9,6 @@
 - 启用了 Implicit Usings
 - Debug/Release 配置下自动生成文档
 
-## 📂 目录指南
-
-- 🗄️ **App.db**: 主数据库文件。
-- ⚙️ **appsettings.json**: 项目的配置文件。
-- 🎫 **Attribute**: 包含诸如 `AuthAttribute.cs` 的属性相关文件。
-- 🎛️ **Controllers**: 控制器目录，例如 `TestController.cs`。
-- 📁 **DTOs**: 数据传输对象目录，包括 HTTP 和 WebSocket 相关类，如 `Re.cs` 和 `WsRe.cs`。
-- 📁 **Data**: 包含 `AppDbContext.cs` 的数据库核心目录。
-- 🚧 **Filter**: 过滤器目录，包含例如 `CustomerExceptionFilter.cs` 和 `ModelValidateActionFilterAttribute.cs` 的过滤机制。
-- 🔑 **Jwt**: 包含 JWT 机制和配置的目录，如 `IJwtService.cs` 和 `TokenOptions.cs`。
-- 📁 **Models**: 模型目录，例如 `TestUser.cs`。
-- 🚀 **Program.cs**: 应用程序的启动入口。
-- ⚙️ **Properties**: 包含例如 `launchSettings.json` 的属性文件目录。
-- 📁 **Repositories**: 存储库目录，例如 `TestUser`。
-- 📄 **Resources**: 静态资源目录。
-- 📁 **Services**: 服务目录，例如 `TestServices`。
-- 📚 **Static**: 包含静态数据，如 `TokenList.cs` 的静态目录。
-- 📁 **Utils**: 实用工具目录，例如 `Expand.cs`。
-- 🌐 **WS**: 包含 WebSocket 功能及配置的目录，例如 `WebSocketController.cs` 和 `WebsocketProcess.cs`。
-- 🎨 **ClientApp**: Vue 的前端工程目录，包括所有前端代码、组件、资源等。
-- 🌍 **wwwroot**: 包含 Vue 打包后的生产环境部署文件。
-- 📁 **Build**: 包含构建相关文件夹，如 `Portable`。
-- 📁 **Enum**: 枚举类型目录，例如 `Code.cs`、`Route.cs` 和 `UserRole.cs`。
-- 📄 **Dockerfile**: Docker 配置文件。
-
 ## 🧰 配置及中间件介绍
 
 ### 🖋️ Serilog 日志系统
@@ -71,9 +46,27 @@
 
 支持 WebSocket 连接，所有 WebSocket 请求被定向到 `/ws`。
 
-### 💽 数据库配置
+### 💽 数据库配置更新
 
-使用 SQLite 数据库并存储于 `App.db`。启动时，确保数据库已创建。
+数据库配置现在通过 `appsettings.json` 文件进行。在启动应用程序时，确保配置文件中包含正确的数据库连接字符串。
+
+修改后的配置信息如下所示：
+  ```json
+  // 可选值：mysql, sqlite, sqlserver, postgresql
+  // 默认值：sqlite
+  // 如果为空，默认在程序根目录下创建App.db
+  "DefaultConnection": "sqlite",
+  "ConnectionStrings": {
+    "MySqlConnection": "server=127.0.0.1;database=FlashDotNet;user=root;password=qwertyuiop",
+    // 测试环境使用 Encrypt=False;TrustServerCertificate=True，用于解决SQL Server 的 SSL 连接问题
+    // 正式环境请使用 Encrypt=True;TrustServerCertificate=False，或者删除这两个参数
+    "SqlServerConnection": "Server=127.0.0.1;Database=FlashDotNet;User Id=sa;Password=Qwertyuiop1234;Encrypt=False;TrustServerCertificate=True;",
+    "SqliteConnection": "Data Source=App.db",
+    "PostgreSqlConnection": "Host=127.0.0.1;Database=FlashDotNet;Username=postgres;Password=qwertyuiop"
+  }
+  ```
+
+例如，如果希望使用 MySQL 数据库，则需要在 `DefaultConnection` 中设置为 `"mysql"` 并使用 `MySqlConnection` 字符串。同理，对于其他数据库类型也是如此。
 
 ### 🚀 控制器与端点
 
