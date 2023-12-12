@@ -7,5 +7,4 @@
 /// 用于自动注册服务。
 /// </summary>
 public interface IMarker
-{
-}
+{}

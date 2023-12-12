@@ -15,20 +15,20 @@ public interface IUserServices
     /// <param name="request"></param>
     /// <returns></returns>
     Task<IRe<RegisterResponse>> RegisterAsync(RegisterRequest request);
-    
+
     /// <summary>
     /// 用户登录
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
     Task<IRe<LoginResponse>> LoginAsync(LoginRequest request);
-    
+
     /// <summary>
     /// 获取用户列表
     /// </summary>
     /// <returns></returns>
     Task<IRe<List<GetUserListResponse>>> GetUserListAsync();
-    
+
     /// <summary>
     /// 获取当前用户信息
     /// </summary>

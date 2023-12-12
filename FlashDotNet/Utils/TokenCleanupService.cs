@@ -10,6 +10,14 @@ public class TokenCleanupService : IHostedService, IDisposable
     private Timer? _timer;
 
     /// <summary>
+    /// 释放资源
+    /// </summary>
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+
+    /// <summary>
     /// 启动异步操作。
     /// </summary>
     /// <param name="cancellationToken">取消令牌。</param>
@@ -24,17 +32,6 @@ public class TokenCleanupService : IHostedService, IDisposable
     }
 
     /// <summary>
-    /// 定时执行的方法
-    /// </summary>
-    /// <param name="state"></param>
-    private void DoWork(object state)
-    {
-        int count = TokenWhiteList.RemoveExpiredToken();
-        Console.WriteLine($"本次清理Token数量：{count}");
-        Console.WriteLine($"剩余有效Token数量：{TokenWhiteList.GetTokenCount()}");
-    }
-
-    /// <summary>
     /// 停止异步操作。
     /// </summary>
     /// <param name="cancellationToken"></param>
@@ -46,10 +43,13 @@ public class TokenCleanupService : IHostedService, IDisposable
     }
 
     /// <summary>
-    /// 释放资源
+    /// 定时执行的方法
     /// </summary>
-    public void Dispose()
+    /// <param name="state"></param>
+    private void DoWork(object state)
     {
-        _timer?.Dispose();
+        int count = TokenWhiteList.RemoveExpiredToken();
+        Console.WriteLine($"本次清理Token数量：{count}");
+        Console.WriteLine($"剩余有效Token数量：{TokenWhiteList.GetTokenCount()}");
     }
 }

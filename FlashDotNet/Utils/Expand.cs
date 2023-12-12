@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using Konscious.Security.Cryptography;
 
@@ -19,51 +20,6 @@ public static class Expand
     {
         action(t);
         return t;
-    }
-
-    #endregion
-
-    #region md5计算
-
-    /// <summary>
-    /// 计算md5值
-    /// </summary>
-    /// <param name="str">自身传递</param>
-    /// <param name="toUpper">是否为大写</param>
-    /// <param name="to16">是否为16位md5</param>
-    /// <returns>md5</returns>
-    public static string ToMd5(this string str, bool toUpper = false, bool to16 = false)
-    {
-        //将str进行MD5加密
-        var md5 = System.Security.Cryptography.MD5.Create();
-        var bs = md5.ComputeHash(Encoding.UTF8.GetBytes(str));
-        var sb = new StringBuilder();
-        foreach (var b in bs)
-        {
-            sb.Append(b.ToString(toUpper ? "X2" : "x2"));
-        }
-
-        return to16 ? sb.ToString().Substring(8, 16) : sb.ToString();
-    }
-
-    /// <summary>
-    /// 计算md5值
-    /// </summary>
-    /// <param name="bytes">自身传递</param>
-    /// <param name="toUpper">是否为大写</param>
-    /// <param name="to16">是否为16位md5</param>
-    /// <returns>md5</returns>
-    public static string ToMd5(this byte[] bytes, bool toUpper = false, bool to16 = false)
-    {
-        var md5 = System.Security.Cryptography.MD5.Create();
-        var bs = md5.ComputeHash(bytes);
-        var sb = new StringBuilder();
-        foreach (var b in bs)
-        {
-            sb.Append(b.ToString(toUpper ? "X2" : "x2"));
-        }
-
-        return to16 ? sb.ToString().Substring(8, 16) : sb.ToString();
     }
 
     #endregion
@@ -90,6 +46,51 @@ public static class Expand
 
         var hashBytes = hasher.GetBytes(32); // 获取32字节的哈希值
         return Convert.ToBase64String(hashBytes);
+    }
+
+    #endregion
+
+    #region md5计算
+
+    /// <summary>
+    /// 计算md5值
+    /// </summary>
+    /// <param name="str">自身传递</param>
+    /// <param name="toUpper">是否为大写</param>
+    /// <param name="to16">是否为16位md5</param>
+    /// <returns>md5</returns>
+    public static string ToMd5(this string str, bool toUpper = false, bool to16 = false)
+    {
+        //将str进行MD5加密
+        var md5 = MD5.Create();
+        var bs = md5.ComputeHash(Encoding.UTF8.GetBytes(str));
+        var sb = new StringBuilder();
+        foreach (var b in bs)
+        {
+            sb.Append(b.ToString(toUpper ? "X2" : "x2"));
+        }
+
+        return to16 ? sb.ToString().Substring(8, 16) : sb.ToString();
+    }
+
+    /// <summary>
+    /// 计算md5值
+    /// </summary>
+    /// <param name="bytes">自身传递</param>
+    /// <param name="toUpper">是否为大写</param>
+    /// <param name="to16">是否为16位md5</param>
+    /// <returns>md5</returns>
+    public static string ToMd5(this byte[] bytes, bool toUpper = false, bool to16 = false)
+    {
+        var md5 = MD5.Create();
+        var bs = md5.ComputeHash(bytes);
+        var sb = new StringBuilder();
+        foreach (var b in bs)
+        {
+            sb.Append(b.ToString(toUpper ? "X2" : "x2"));
+        }
+
+        return to16 ? sb.ToString().Substring(8, 16) : sb.ToString();
     }
 
     #endregion

@@ -10,16 +10,6 @@ namespace FlashDotNet.WS;
 public class UserConnection
 {
     /// <summary>
-    /// WebSocket
-    /// </summary>
-    public WebSocket WebSocket { get; }
-
-    /// <summary>
-    /// 连接ID
-    /// </summary>
-    public string SocketId { get; }
-
-    /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="webSocket"></param>
@@ -29,6 +19,16 @@ public class UserConnection
         WebSocket = webSocket;
         SocketId = socketId;
     }
+
+    /// <summary>
+    /// WebSocket
+    /// </summary>
+    public WebSocket WebSocket { get; }
+
+    /// <summary>
+    /// 连接ID
+    /// </summary>
+    public string SocketId { get; }
 
     /// <summary>
     /// 发送消息

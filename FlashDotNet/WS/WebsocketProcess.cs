@@ -1,6 +1,5 @@
 ﻿using FlashDotNet.DTOs;
 using FlashDotNet.DTOs.WebSocket.Requests;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Route = FlashDotNet.Enum.Route;
 
@@ -25,7 +24,7 @@ public static class WebsocketProcess
         }
         catch (Exception e)
         {
-            var re = new WsError<JObject>()
+            var re = new WsError<JObject>
             {
                 Route = Route.Error.ToString(),
                 Message = "路由请求错误，请检查路由是否正确",
@@ -41,7 +40,7 @@ public static class WebsocketProcess
         {
             //测试路由
             case nameof(Route.Test):
-                await socket.SendMessageAsync(JObject.FromObject(new WsOk<JObject>()
+                await socket.SendMessageAsync(JObject.FromObject(new WsOk<JObject>
                 {
                     Route = Route.Test.ToString(),
                     Data = data.Data,
@@ -49,7 +48,7 @@ public static class WebsocketProcess
                 break;
             //其他路由
             default:
-                await socket.SendMessageAsync(JObject.FromObject(new WsError<JObject>()
+                await socket.SendMessageAsync(JObject.FromObject(new WsError<JObject>
                 {
                     Route = Route.Error.ToString(), Message = "请求路由错误，请检查路由是否正确",
                 }));

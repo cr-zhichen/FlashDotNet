@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace FlashDotNet.Attribute;
 
 /// <summary>
 /// 表示用于验证密码的属性。
 /// </summary>
-[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
 public class PasswordValidationAttribute : ValidationAttribute
 {
     ///<summary>
@@ -28,6 +29,6 @@ public class PasswordValidationAttribute : ValidationAttribute
         // ^(?=.*\d)(?=.*[a-zA-Z])|(?=.*\d)(?=.*[\W_])|(?=.*[a-zA-Z])(?=.*[\W_]).{8,}$：三选二规则，最少8位长度
         string regexPattern = @"^(?=.*\d)(?=.*[a-zA-Z])|(?=.*\d)(?=.*[\W_])|(?=.*[a-zA-Z])(?=.*[\W_]).{8,}$";
 
-        return System.Text.RegularExpressions.Regex.IsMatch(password, regexPattern);
+        return Regex.IsMatch(password, regexPattern);
     }
 }

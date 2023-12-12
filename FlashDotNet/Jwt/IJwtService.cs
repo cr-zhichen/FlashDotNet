@@ -55,11 +55,6 @@ public interface IJwtService
 public class JwtService : IJwtService
 {
     /// <summary>
-    /// 令牌选项
-    /// </summary>
-    private TokenOptions TokenOptions { get; }
-
-    /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="options"></param>
@@ -67,6 +62,11 @@ public class JwtService : IJwtService
     {
         TokenOptions = options.Value;
     }
+
+    /// <summary>
+    /// 令牌选项
+    /// </summary>
+    private TokenOptions TokenOptions { get; }
 
     /// <summary>
     /// 创建令牌
@@ -77,8 +77,7 @@ public class JwtService : IJwtService
     public Task<string> CreateTokenAsync(string userId, string role)
     {
         // 添加一些需要的键值对
-        Claim[] claims = new[]
-        {
+        Claim[] claims = {
             new Claim("user", userId),
             new Claim("role", role)
         };

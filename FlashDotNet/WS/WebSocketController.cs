@@ -2,10 +2,10 @@
 using System.Net.WebSockets;
 using System.Text;
 using FlashDotNet.Data;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using FlashDotNet.DTOs;
 using FlashDotNet.DTOs.WebSocket.Requests;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Route = FlashDotNet.Enum.Route;
 
 namespace FlashDotNet.WS
@@ -16,14 +16,20 @@ namespace FlashDotNet.WS
     public class WebSocketController
     {
         /// <summary>
-        /// 数据库上下文
+        /// 用户连接集合
         /// </summary>
-        private readonly AppDbContext _context;
+        private static readonly ConcurrentDictionary<string, UserConnection> Connections =
+            new ConcurrentDictionary<string, UserConnection>();
 
         /// <summary>
         /// 配置文件
         /// </summary>
         private readonly IConfiguration _configuration;
+
+        /// <summary>
+        /// 数据库上下文
+        /// </summary>
+        private readonly AppDbContext _context;
 
         /// <summary>
         /// 构造函数
@@ -35,12 +41,6 @@ namespace FlashDotNet.WS
             _context = context;
             _configuration = configuration;
         }
-
-        /// <summary>
-        /// 用户连接集合
-        /// </summary>
-        private static readonly ConcurrentDictionary<string, UserConnection> Connections =
-            new ConcurrentDictionary<string, UserConnection>();
 
         /// <summary>
         /// 处理WebSocket请求
@@ -55,7 +55,7 @@ namespace FlashDotNet.WS
             var buffer = new byte[4096000];
             WebSocketReceiveResult result;
 
-            IWsRe<JObject> send = new WsOk<JObject>()
+            IWsRe<JObject> send = new WsOk<JObject>
             {
                 Route = Route.First.ToString(),
                 Data = JObject.FromObject(new

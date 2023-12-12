@@ -1,21 +1,19 @@
 using System.Reflection;
-using System.Text;
 using FlashDotNet.Data;
 using FlashDotNet.Enum;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using FlashDotNet.Filter;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
 using FlashDotNet.Utils;
 using FlashDotNet.WS;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.OpenApi.Models;
 using Serilog;
+using Serilog.Events;
 
 StartupArt.Print();
 
@@ -28,11 +26,11 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File(Path.Combine(baseDirectory, "Logs/AllLogs/Log.txt"), rollingInterval: RollingInterval.Day)
     .WriteTo.File(Path.Combine(baseDirectory, "Logs/Information/Log-Information-.txt"),
-        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information, rollingInterval: RollingInterval.Day)
+        restrictedToMinimumLevel: LogEventLevel.Information, rollingInterval: RollingInterval.Day)
     .WriteTo.File(Path.Combine(baseDirectory, "Logs/Warning/Log-Warning-.txt"),
-        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
+        restrictedToMinimumLevel: LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
     .WriteTo.File(Path.Combine(baseDirectory, "Logs/Error/Log-Error-.txt"),
-        restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Error, rollingInterval: RollingInterval.Day)
+        restrictedToMinimumLevel: LogEventLevel.Error, rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -164,32 +162,32 @@ var databaseOptions = (builder.Configuration.GetSection("DefaultConnection").Get
 
 if (databaseOptions == nameof(DatabaseType.Mysql).ToLower())
 {
-    Console.WriteLine($"使用MySQL数据库");
+    Console.WriteLine("使用MySQL数据库");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseMySql(builder.Configuration.GetConnectionString("MySqlConnection"),
             ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MySqlConnection"))));
 }
 else if (databaseOptions == nameof(DatabaseType.Postgresql).ToLower())
 {
-    Console.WriteLine($"使用PostgreSQL数据库");
+    Console.WriteLine("使用PostgreSQL数据库");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlConnection")));
 }
 else if (databaseOptions == nameof(DatabaseType.Sqlite).ToLower())
 {
-    Console.WriteLine($"使用Sqlite数据库");
+    Console.WriteLine("使用Sqlite数据库");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnection")));
 }
 else if (databaseOptions == nameof(DatabaseType.Sqlserver).ToLower())
 {
-    Console.WriteLine($"使用SqlServer数据库");
+    Console.WriteLine("使用SqlServer数据库");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnection")));
 }
 else
 {
-    Console.WriteLine($"使用Sqlite数据库");
+    Console.WriteLine("使用Sqlite数据库");
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite($"Data Source={Path.Combine(baseDirectory, "App.db")}"));
 }

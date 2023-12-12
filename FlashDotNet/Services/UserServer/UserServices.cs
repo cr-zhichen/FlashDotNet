@@ -14,14 +14,14 @@ namespace FlashDotNet.Services.UserServer;
 public class UserServices : IUserServices, IMarker
 {
     /// <summary>
-    /// 用户相关的数据库操作
-    /// </summary>
-    private readonly IUserRepository _userRepository;
-
-    /// <summary>
     /// JWT相关的服务
     /// </summary>
     private readonly IJwtService _jwtService;
+
+    /// <summary>
+    /// 用户相关的数据库操作
+    /// </summary>
+    private readonly IUserRepository _userRepository;
 
     /// <summary>
     /// 构造函数
@@ -55,10 +55,10 @@ public class UserServices : IUserServices, IMarker
         //生成JWT
         var token = await _jwtService.CreateTokenAsync(user.Username, user.Role.ToString());
 
-        return new Ok<RegisterResponse>()
+        return new Ok<RegisterResponse>
         {
             Message = "注册成功",
-            Data = new RegisterResponse()
+            Data = new RegisterResponse
             {
                 Username = user.Username,
                 Role = user.Role.ToString(),
@@ -77,7 +77,7 @@ public class UserServices : IUserServices, IMarker
         // 判断密码是否正确
         if (!await _userRepository.CheckPasswordAsync(request.Username, request.Password))
         {
-            return new Error<LoginResponse>()
+            return new Error<LoginResponse>
             {
                 Message = "用户名或密码错误"
             };
@@ -89,10 +89,10 @@ public class UserServices : IUserServices, IMarker
         //生成JWT
         var token = await _jwtService.CreateTokenAsync(request.Username, role.ToString());
 
-        return new Ok<LoginResponse>()
+        return new Ok<LoginResponse>
         {
             Message = "登录成功",
-            Data = new LoginResponse()
+            Data = new LoginResponse
             {
                 Username = request.Username,
                 Role = role.ToString(),
@@ -111,14 +111,14 @@ public class UserServices : IUserServices, IMarker
         var userList = await _userRepository.GetUserListAsync();
 
         // 转换为DTO
-        var response = userList.Select(x => new GetUserListResponse()
+        var response = userList.Select(x => new GetUserListResponse
         {
             UserId = x.UserId,
             Username = x.Username,
             Role = x.Role.ToString(),
         }).ToList();
 
-        return new Ok<List<GetUserListResponse>>()
+        return new Ok<List<GetUserListResponse>>
         {
             Message = "获取成功",
             Data = response
@@ -141,10 +141,10 @@ public class UserServices : IUserServices, IMarker
         // 获取用户角色
         var role = await _userRepository.GetUserRoleAsync(userId);
 
-        return new Ok<GetUserInfoResponse>()
+        return new Ok<GetUserInfoResponse>
         {
             Message = "获取成功",
-            Data = new GetUserInfoResponse()
+            Data = new GetUserInfoResponse
             {
                 UserId = userId,
                 Username = username,
