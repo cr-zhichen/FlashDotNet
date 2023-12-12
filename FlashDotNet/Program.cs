@@ -12,6 +12,7 @@ using FlashDotNet.Jwt;
 using FlashDotNet.Utils;
 using FlashDotNet.WS;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
@@ -42,6 +43,19 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 
 // 使用Serilog作为日志提供程序
 builder.Host.UseSerilog();
+
+#endregion
+
+#region 响应压缩配置
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+    // 这里可以添加更多 MIME 类型 
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+        { "text/plain", "text/html", "application/json" });
+});
 
 #endregion
 
@@ -209,6 +223,12 @@ builder.Services.Scan(scan => scan
 #endregion
 
 var app = builder.Build();
+
+#region 使用响应压缩中间件
+
+app.UseResponseCompression();
+
+#endregion
 
 #region Swagger中间件配置
 
