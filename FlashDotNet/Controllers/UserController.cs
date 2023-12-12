@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace FlashDotNet.Controllers;
 
 /// <summary>
-/// 命令控制器
+/// 用户控制器
 /// </summary>
 [ApiController]
-[Route("[controller]")]
+[Route("api/user")]
 public class UserController : ControllerBase
 {
     /// <summary>
@@ -55,7 +55,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [Auth(nameof(UserRole.Admin))]
-    [HttpGet("getAll")]
+    [HttpGet("get-user-list")]
     public async Task<IRe<List<GetUserListResponse>>> GetUserListAsync()
     {
         return await _userServices.GetUserListAsync();
@@ -66,7 +66,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [Auth]
-    [HttpGet("getInfo")]
+    [HttpGet("get-user-info")]
     public async Task<IRe<GetUserInfoResponse>> GetUserInfoAsync()
     {
         // 获取Token
