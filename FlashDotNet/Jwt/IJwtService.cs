@@ -7,7 +7,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace FlashDotNet.Jwt;
 
-// 接口
+/// <summary>
+/// 表示JWT服务，该服务提供用于创建、验证和管理JWT令牌的功能。
+/// </summary>
 public interface IJwtService
 {
     /// <summary>
@@ -48,19 +50,21 @@ public interface IJwtService
     Task LogoutByUsernameAsync(string username);
 }
 
-// 实现
+/// <summary>
+/// 表示JWT服务，该服务提供用于创建、验证和管理JWT令牌的功能。
+/// </summary>
 public class JwtService : IJwtService
 {
     /// <summary>
     /// 令牌选项
     /// </summary>
-    private Jwt.TokenOptions TokenOptions { get; }
+    private TokenOptions TokenOptions { get; }
 
     /// <summary>
     /// 构造函数
     /// </summary>
     /// <param name="options"></param>
-    public JwtService(IOptions<Jwt.TokenOptions> options)
+    public JwtService(IOptions<TokenOptions> options)
     {
         TokenOptions = options.Value;
     }
@@ -81,25 +85,31 @@ public class JwtService : IJwtService
         };
 
         var keyBytes = Encoding.UTF8.GetBytes(TokenOptions.SecretKey);
-        var creds = new SigningCredentials(new SymmetricSecurityKey(keyBytes),
+        var credentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes),
             SecurityAlgorithms.HmacSha256);
 
-        var expires = DateTime.Now.AddMinutes(TokenOptions.ExpireMinutes);
+        // 判断是否设置永不过期
+        DateTime? expires = null;
+        if (TokenOptions.ExpireMinutes != -1)
+        {
+            expires = DateTime.Now.AddMinutes(TokenOptions.ExpireMinutes);
+        }
 
         var jwtSecurityToken = new JwtSecurityToken(
             issuer: TokenOptions.Issuer, // 签发者
             audience: TokenOptions.Audience, // 接收者
             claims: claims, // payload
-            expires: expires, // 过期时间
-            signingCredentials: creds); // 令牌
+            expires: expires, // 过期时间, 当 ExpireMinutes 为 -1 时，此处为 null，代表无过期时间
+            signingCredentials: credentials); // 令牌
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
         TokenList.TokenLists.Add(new TokenList.TokenItem()
         {
             Username = username,
             Token = token,
-            ExpireTime = expires
+            ExpireTime = expires ?? DateTime.MaxValue // 如果无过期时间，设置为最大值
         });
+
         return Task.FromResult(token);
     }
 

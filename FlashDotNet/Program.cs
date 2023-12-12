@@ -20,7 +20,7 @@ StartupArt.Print();
 
 #region 应用构建器与配置
 
-var baseDirectory = Path.GetDirectoryName(AppContext.BaseDirectory);
+var baseDirectory = Path.GetDirectoryName(AppContext.BaseDirectory)!;
 
 // 配置Serilog
 Log.Logger = new LoggerConfiguration()
@@ -73,9 +73,24 @@ builder.Services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInva
 #region JWT配置
 
 var section = builder.Configuration.GetSection("TokenOptions");
-var tokenOptions = section.Get<TokenOptions>();
+var tokenOptions = section.Get<TokenOptions>()!;
+
+// 检查配置并生成随机值
+if (string.IsNullOrEmpty(tokenOptions.SecretKey))
+    tokenOptions.SecretKey = Guid.NewGuid().ToString();
+if (string.IsNullOrEmpty(tokenOptions.Issuer))
+    tokenOptions.Issuer = Guid.NewGuid().ToString();
+if (string.IsNullOrEmpty(tokenOptions.Audience))
+    tokenOptions.Audience = Guid.NewGuid().ToString();
+
 builder.Services.AddTransient<IJwtService, JwtService>();
-builder.Services.Configure<TokenOptions>(section);
+builder.Services.Configure<TokenOptions>(options =>
+{
+    options.SecretKey = tokenOptions.SecretKey;
+    options.Issuer = tokenOptions.Issuer;
+    options.Audience = tokenOptions.Audience;
+    options.ExpireMinutes = tokenOptions.ExpireMinutes;
+});
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
