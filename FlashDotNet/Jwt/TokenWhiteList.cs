@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace FlashDotNet.Static;
+namespace FlashDotNet.Jwt;
 
 /// <summary>
 /// Token白名单列表

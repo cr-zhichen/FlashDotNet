@@ -1,4 +1,4 @@
-﻿using FlashDotNet.Static;
+﻿using FlashDotNet.Jwt;
 
 namespace FlashDotNet.Utils;
 
