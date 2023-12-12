@@ -29,8 +29,9 @@ public class TokenCleanupService : IHostedService, IDisposable
     /// <param name="state"></param>
     private void DoWork(object state)
     {
-        TokenWhiteList.RemoveExpiredToken();
-        Console.WriteLine($"Token清理服务执行，清理后Token数量：{TokenWhiteList.GetTokenCount()}");
+        int count = TokenWhiteList.RemoveExpiredToken();
+        Console.WriteLine($"本次清理Token数量：{count}");
+        Console.WriteLine($"剩余有效Token数量：{TokenWhiteList.GetTokenCount()}");
     }
 
     /// <summary>

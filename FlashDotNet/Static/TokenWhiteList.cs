@@ -62,15 +62,19 @@ public static class TokenWhiteList
     /// <summary>
     /// 删除过期的Token
     /// </summary>
-    public static void RemoveExpiredToken()
+    public static int RemoveExpiredToken()
     {
+        int count = 0;
         foreach (var (key, value) in TokenDictionary)
         {
             if (value.Item2 < DateTime.Now)
             {
+                count++;
                 TokenDictionary.TryRemove(key, out _);
             }
         }
+
+        return count;
     }
 
     /// <summary>
