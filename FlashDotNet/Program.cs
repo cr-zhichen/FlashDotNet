@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Threading.RateLimiting;
 using FlashDotNet.Data;
 using FlashDotNet.Enum;
 using FlashDotNet.Filter;
@@ -9,6 +10,7 @@ using FlashDotNet.WS;
 using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -96,6 +98,25 @@ builder.Services.AddRequestTimeouts(options =>
             TimeoutStatusCode = 503
         };
 });
+
+#endregion
+
+#region 速率限制配置
+
+builder.Services.AddRateLimiter(o => o
+    .AddSlidingWindowLimiter(policyName: "sliding", options =>
+    {
+        // 每个窗口允许的最大请求数
+        options.PermitLimit = 100;
+        // 时间窗口长度
+        options.Window = TimeSpan.FromMinutes(1);
+        // 时间窗口分片
+        options.SegmentsPerWindow = 10;
+        // FIFO（先进先出）或LIFO（后进先出）
+        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        // 队列中可以容纳的最大请求数量
+        options.QueueLimit = 100;
+    }));
 
 #endregion
 
@@ -231,9 +252,19 @@ app.UseResponseCompression();
 
 #endregion
 
+#region 使用速率限制中间件
+
+app.UseRateLimiter();
+
+#endregion
+
 #region Swagger中间件配置
 
-if (app.Environment.IsDevelopment())
+var isUseSwagger = (builder.Configuration.GetSection("IsUseSwagger").Get<string>() ?? nameof(UseSwaggerType.Auto))
+    .ToLower();
+
+if (isUseSwagger == nameof(UseSwaggerType.True).ToLower() ||
+    (isUseSwagger == nameof(UseSwaggerType.Auto).ToLower() && app.Environment.IsDevelopment()))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
