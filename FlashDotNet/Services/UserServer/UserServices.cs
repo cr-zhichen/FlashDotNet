@@ -5,6 +5,7 @@ using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
 using FlashDotNet.Repositories.TestUser;
+using FlashDotNet.Utils;
 
 namespace FlashDotNet.Services.UserServer;
 
@@ -50,7 +51,7 @@ public class UserServices : IUserServices, IMarker
         }
 
         //创建用户
-        var user = await _userRepository.CreateUserAsync(request.Username, request.Password, role);
+        var user = await _userRepository.CreateUserAsync(request.Username, request.Password.ToArgon2(request.Username), role);
 
         //生成JWT
         var token = await _jwtService.CreateTokenAsync(user.Username, user.Role.ToString());
@@ -75,7 +76,7 @@ public class UserServices : IUserServices, IMarker
     public async Task<IRe<LoginResponse>> LoginAsync(LoginRequest request)
     {
         // 判断密码是否正确
-        if (!await _userRepository.CheckPasswordAsync(request.Username, request.Password))
+        if (!await _userRepository.CheckPasswordAsync(request.Username, request.Password.ToArgon2(request.Username)))
         {
             return new Error<LoginResponse>
             {

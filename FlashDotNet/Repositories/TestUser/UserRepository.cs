@@ -36,15 +36,15 @@ public class UserRepository : IUserRepository, IMarker
     /// 创建用户
     /// </summary>
     /// <param name="username"></param>
-    /// <param name="password"></param>
+    /// <param name="argon2Password"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    public async Task<UserInfo> CreateUserAsync(string username, string password, UserRole role = UserRole.User)
+    public async Task<UserInfo> CreateUserAsync(string username, string argon2Password, UserRole role = UserRole.User)
     {
         var user = new UserInfo
         {
             Username = username,
-            Password = password.ToArgon2(username),
+            Password = argon2Password,
             Role = role,
         };
         _context.TestUser.Add(user);
@@ -56,12 +56,12 @@ public class UserRepository : IUserRepository, IMarker
     /// 判断密码是否正确
     /// </summary>
     /// <param name="username"></param>
-    /// <param name="password"></param>
+    /// <param name="argon2Password"></param>
     /// <returns></returns>
-    public async Task<bool> CheckPasswordAsync(string username, string password)
+    public async Task<bool> CheckPasswordAsync(string username, string argon2Password)
     {
         return await _context.TestUser.AnyAsync(x =>
-            x.Username == username && x.Password == password.ToArgon2(username));
+            x.Username == username && x.Password == argon2Password);
     }
 
     /// <summary>

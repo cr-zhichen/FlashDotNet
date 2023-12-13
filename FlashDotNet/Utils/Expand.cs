@@ -40,9 +40,10 @@ public static class Expand
             hasher.Salt = Encoding.UTF8.GetBytes(salt);
         }
 
-        hasher.DegreeOfParallelism = 8; // 线程数
-        hasher.MemorySize = 65536; // 使用的内存量 (KB)
-        hasher.Iterations = 4; // 迭代次数
+        // 参数调整
+        hasher.DegreeOfParallelism = 4; // 减少线程数，减轻CPU负担
+        hasher.MemorySize = 32768; // 降低内存使用量到32 MB
+        hasher.Iterations = 3; // 稍微减少迭代次数
 
         var hashBytes = hasher.GetBytes(32); // 获取32字节的哈希值
         return Convert.ToBase64String(hashBytes);

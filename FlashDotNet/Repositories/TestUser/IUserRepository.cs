@@ -18,18 +18,18 @@ public interface IUserRepository
     /// 创建用户
     /// </summary>
     /// <param name="username"></param>
-    /// <param name="password"></param>
+    /// <param name="argon2Password"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    Task<UserInfo> CreateUserAsync(string username, string password, UserRole role = UserRole.User);
+    Task<UserInfo> CreateUserAsync(string username, string argon2Password, UserRole role = UserRole.User);
 
     /// <summary>
     /// 判断密码是否正确
     /// </summary>
     /// <param name="username"></param>
-    /// <param name="password"></param>
+    /// <param name="argon2Password"></param>
     /// <returns></returns>
-    Task<bool> CheckPasswordAsync(string username, string password);
+    Task<bool> CheckPasswordAsync(string username, string argon2Password);
 
     /// <summary>
     /// 获取用户角色
