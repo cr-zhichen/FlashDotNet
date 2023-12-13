@@ -16,13 +16,8 @@ public class RegisterRequest
     /// <summary>
     /// 密码
     /// </summary>
-    [PasswordValidation(ErrorMessage = "密码需要在数字、字母、特殊符号中三选二")]
+    [PasswordValidation(ErrorMessage = "密码应由以下三种字符类型中的任意两种组成：数字、字母、特殊符号")]
     public string Password { get; set; } = "";
-
-    /// <summary>
-    /// 权限
-    /// </summary>
-    public UserRole Role { get; set; } = UserRole.User;
 }
 
 /// <summary>
@@ -38,6 +33,6 @@ public class LoginRequest
     /// <summary>
     /// 密码
     /// </summary>
-    [PasswordValidation(ErrorMessage = "密码需要在数字、字母、特殊符号中三选二")]
+    [PasswordValidation(ErrorMessage = "密码应由以下三种字符类型中的任意两种组成：数字、字母、特殊符号")]
     public string Password { get; set; } = "";
 }
