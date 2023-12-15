@@ -358,4 +358,63 @@ public static class Expand
     }
 
     #endregion
+
+    /// <summary>
+    /// Try Catch 简易封装 异步
+    /// </summary>
+    /// <param name="task"></param>
+    /// <param name="onException"></param>
+    /// <param name="onFinally"></param>
+    /// <typeparam name="TException"></typeparam>
+    /// <typeparam name="TReturn"></typeparam>
+    public static async Task<TReturn?> TryAsync<TReturn, TException>(
+        this Task<TReturn?> task,
+        Action<TException>? onException = null,
+        Action? onFinally = null
+    )
+        where TException : Exception
+    {
+        try
+        {
+            return await task;
+        }
+        catch (TException ex)
+        {
+            onException?.Invoke(ex);
+            return default;
+        }
+        finally
+        {
+            onFinally?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// 无需指定异常类型的Try Catch 简易封装 异步
+    /// </summary>
+    /// <param name="task"></param>
+    /// <param name="onException"></param>
+    /// <param name="onFinally"></param>
+    /// <typeparam name="TReturn"></typeparam>
+    /// <returns></returns>
+    public static async Task<TReturn?> TryAsync<TReturn>(
+        this Task<TReturn?> task,
+        Action<Exception>? onException = null,
+        Action? onFinally = null
+    )
+    {
+        try
+        {
+            return await task;
+        }
+        catch (Exception)
+        {
+            onException?.Invoke(new Exception());
+            return default;
+        }
+        finally
+        {
+            onFinally?.Invoke();
+        }
+    }
 }

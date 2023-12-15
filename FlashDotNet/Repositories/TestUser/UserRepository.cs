@@ -48,7 +48,10 @@ public class UserRepository : IUserRepository, IMarker
             Role = role,
         };
         _context.TestUser.Add(user);
-        await _context.SaveChangesAsync();
+
+        await _context.SaveChangesAsync()
+            .TryAsync(new Action<DbUpdateException>(_ => throw new ArgumentException("用户名已存在")));
+
         return user;
     }
 
@@ -60,7 +63,7 @@ public class UserRepository : IUserRepository, IMarker
     /// <returns></returns>
     public async Task<bool> CheckPasswordAsync(string username, string argon2Password)
     {
-        return await _context.TestUser.AnyAsync(x =>
+        return await _context.TestUser.AsNoTracking().AnyAsync(x =>
             x.Username == username && x.Password == argon2Password);
     }
 
@@ -71,8 +74,8 @@ public class UserRepository : IUserRepository, IMarker
     /// <returns></returns>
     public async Task<UserRole> GetUserRoleAsync(string username)
     {
-        return await _context.TestUser.Where(x => x.Username == username).Select(x => x.Role)
-            .FirstOrDefaultAsync();
+        return await _context.TestUser.AsNoTracking().Where(x => x.Username == username).Select(x => x.Role)
+            .FirstAsync();
     }
 
     /// <summary>
@@ -82,8 +85,8 @@ public class UserRepository : IUserRepository, IMarker
     /// <returns></returns>
     public async Task<UserRole> GetUserRoleAsync(int userId)
     {
-        return await _context.TestUser.Where(x => x.UserId == userId).Select(x => x.Role)
-            .FirstOrDefaultAsync();
+        return await _context.TestUser.AsNoTracking().Where(x => x.UserId == userId).Select(x => x.Role)
+            .FirstAsync();
     }
 
     /// <summary>
@@ -93,8 +96,8 @@ public class UserRepository : IUserRepository, IMarker
     /// <returns></returns>
     public async Task<int> GetUserIdAsync(string username)
     {
-        return await _context.TestUser.Where(x => x.Username == username).Select(x => x.UserId)
-            .FirstOrDefaultAsync();
+        return await _context.TestUser.AsNoTracking().Where(x => x.Username == username).Select(x => x.UserId)
+            .FirstAsync();
     }
 
     /// <summary>
@@ -103,6 +106,6 @@ public class UserRepository : IUserRepository, IMarker
     /// <returns></returns>
     public async Task<List<UserInfo>> GetUserListAsync()
     {
-        return await _context.TestUser.ToListAsync();
+        return await _context.TestUser.AsNoTracking().ToListAsync();
     }
 }
