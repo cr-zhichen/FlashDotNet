@@ -124,7 +124,6 @@
 docker build --network="host" \
   --build-arg HTTP_PROXY=http://127.0.0.1:7890 \
   --build-arg HTTPS_PROXY=http://127.0.0.1:7890 \
-  -f ./FlashDotNet/Dockerfile \
   -t flash_dotnet:latest .
 ```
 
@@ -132,7 +131,6 @@ docker build --network="host" \
 
 ```bash
 docker build --network="host" \
-  -f ./FlashDotNet/Dockerfile \
   -t flash_dotnet:latest .
 ```
 
