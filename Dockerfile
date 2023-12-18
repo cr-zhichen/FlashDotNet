@@ -1,7 +1,7 @@
 # 使用 Node.js 镜像来构建前端
 FROM node:16 AS node_builder
 WORKDIR /app
-# 使用代理
+# 定义代理变量
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
 ENV http_proxy=$HTTP_PROXY \
@@ -15,14 +15,14 @@ RUN npm run build
 # 使用 .NET SDK 镜像构建后端
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-# 使用代理
+# 定义代理变量
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
 ENV http_proxy=$HTTP_PROXY \
     https_proxy=$HTTPS_PROXY
 # 复制项目文件
 COPY ["FlashDotNet/FlashDotNet.csproj", "."]
-RUN dotnet restore "FlashDotNet/FlashDotNet.csproj"
+RUN dotnet restore "FlashDotNet.csproj"
 COPY . .
 WORKDIR "/src"
 RUN dotnet build "FlashDotNet/FlashDotNet.csproj" -c Release -o /app/build
