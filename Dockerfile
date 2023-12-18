@@ -50,7 +50,6 @@ RUN dotnet restore "${PROJECT_NAME}.csproj"
 COPY . .
 WORKDIR "/src"
 RUN dotnet build "${PROJECT_PATH}${PROJECT_NAME}.csproj" -c Release -o /app/build
-
 # 发布 .NET 应用
 FROM build AS publish
 RUN dotnet publish "${PROJECT_PATH}${PROJECT_NAME}.csproj" -c Release -o /app/publish /p:UseAppHost=false
@@ -58,6 +57,9 @@ RUN dotnet publish "${PROJECT_PATH}${PROJECT_NAME}.csproj" -c Release -o /app/pu
 # 将构建的文件复制到最终镜像中
 FROM base AS final
 WORKDIR /app
+# 定义项目路径
+ARG PROJECT_PATH
+ARG PROJECT_NAME
 COPY --from=publish /app/publish .
 COPY --from=node_builder /wwwroot ./wwwroot
 ENTRYPOINT ["dotnet", "${PROJECT_NAME}.dll"]
