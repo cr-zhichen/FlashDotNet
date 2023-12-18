@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Threading.RateLimiting;
 using FlashDotNet.Data;
 using FlashDotNet.Enum;
 using FlashDotNet.Filter;
@@ -7,10 +6,8 @@ using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
 using FlashDotNet.Utils;
 using FlashDotNet.WS;
-using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -82,41 +79,6 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInvalidFilter = true);
-
-#endregion
-
-#region 请求超时配置
-
-// 文档地址：
-// https://learn.microsoft.com/zh-cn/aspnet/core/performance/timeouts?view=aspnetcore-8.0
-builder.Services.AddRequestTimeouts(options =>
-{
-    options.DefaultPolicy =
-        new RequestTimeoutPolicy
-        {
-            Timeout = TimeSpan.FromSeconds(30),
-            TimeoutStatusCode = 503
-        };
-});
-
-#endregion
-
-#region 速率限制配置
-
-builder.Services.AddRateLimiter(o => o
-    .AddSlidingWindowLimiter(policyName: "sliding", options =>
-    {
-        // 每个窗口允许的最大请求数
-        options.PermitLimit = 100;
-        // 时间窗口长度
-        options.Window = TimeSpan.FromMinutes(1);
-        // 时间窗口分片
-        options.SegmentsPerWindow = 10;
-        // FIFO（先进先出）或LIFO（后进先出）
-        options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        // 队列中可以容纳的最大请求数量
-        options.QueueLimit = 100;
-    }));
 
 #endregion
 
@@ -249,12 +211,6 @@ var app = builder.Build();
 #region 使用响应压缩中间件
 
 app.UseResponseCompression();
-
-#endregion
-
-#region 使用速率限制中间件
-
-app.UseRateLimiter();
 
 #endregion
 
