@@ -44,4 +44,10 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Build\Linux\x64\appsettings.json" />
+      <_ContentIncludedByDefault Remove="Build\Linux\x64\ClientApp\package-lock.json" />
+      <_ContentIncludedByDefault Remove="Build\Linux\x64\ClientApp\package.json" />
+    </ItemGroup>
+
 </Project>
