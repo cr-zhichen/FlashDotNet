@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using FlashDotNet.Data;
 using FlashDotNet.Enum;
@@ -19,7 +20,15 @@ StartupArt.Print();
 
 #region 应用构建器与配置
 
+//如果是开发环境则使用开发环境配置
+var isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
 var baseDirectory = Path.GetDirectoryName(AppContext.BaseDirectory)!;
+
+if (isDevelopment)
+{
+    baseDirectory = Path.Combine(Directory.GetCurrentDirectory());
+}
 
 // 配置Serilog
 Log.Logger = new LoggerConfiguration()
@@ -32,6 +41,12 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File(Path.Combine(baseDirectory, "Logs/Error/Log-Error-.txt"),
         restrictedToMinimumLevel: LogEventLevel.Error, rollingInterval: RollingInterval.Day)
     .CreateLogger();
+
+// 如果没有wwwroot文件夹则创建
+if (!Directory.Exists(Path.Combine(baseDirectory, "wwwroot")))
+{
+    Directory.CreateDirectory(Path.Combine(baseDirectory, "wwwroot"));
+}
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -234,6 +249,7 @@ app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
 #endregion
 
@@ -276,27 +292,9 @@ context.Database.EnsureCreated();
 
 #endregion
 
-#region 控制器与端点配置
-
-// 设置默认文件
-app.UseDefaultFiles(new DefaultFilesOptions
-{
-    DefaultFileNames = new List<string> { "index.html" }
-});
-
-app.UseStaticFiles(); // 静态文件中间件
-
-app.MapControllers();
-
-app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-
-app.MapFallbackToFile("index.html");
-
-#endregion
-
 #region 静态文件配置
 
-var resourcesPath = Path.Combine(Directory.GetCurrentDirectory(), "Resources");
+var resourcesPath = Path.Combine(Path.Combine(baseDirectory, "Resources"));
 
 if (!Directory.Exists(resourcesPath))
 {
@@ -309,6 +307,40 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/resources",
     OnPrepareResponse = ctx => { ctx.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*"); }
 });
+
+#endregion
+
+#region 前端配置
+
+int nodeDevPorts = builder.Configuration.GetSection("NodeDevPorts").Get<int>();
+
+if (app.Environment.IsDevelopment())
+{
+    // 开发环境 使用npm启动vue-cli
+    var vueCli = new ProcessStartInfo
+    {
+        FileName = "cmd.exe",
+        Arguments = $"/c npm run dev -- --port {nodeDevPorts}",
+        WorkingDirectory = Path.Combine(Path.Combine(baseDirectory, "ClientApp")),
+        UseShellExecute = false,
+        RedirectStandardError = true
+    };
+    Process.Start(vueCli);
+    app.UseSpa(spa => { spa.UseProxyToSpaDevelopmentServer($"http://localhost:{nodeDevPorts}"); });
+}
+else
+{
+    // 生产环境 使用vue-cli打包好的静态文件
+    // 设置默认文件
+    app.UseDefaultFiles(new DefaultFilesOptions
+    {
+        DefaultFileNames = new List<string> { "index.html" }
+    });
+
+    app.UseStaticFiles(); // 静态文件中间件
+
+    app.MapFallbackToFile("index.html");
+}
 
 #endregion
 
