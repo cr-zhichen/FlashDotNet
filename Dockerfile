@@ -13,7 +13,7 @@ COPY ["FlashDotNet/ClientApp", "."]
 RUN npm run build
 
 # 使用 .NET SDK 镜像构建后端
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 # 定义代理变量
 ARG HTTP_PROXY
@@ -32,7 +32,7 @@ FROM build AS publish
 RUN dotnet publish "FlashDotNet/FlashDotNet.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # 使用基础 ASP.NET 镜像
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 9000
 
