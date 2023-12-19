@@ -127,7 +127,17 @@ builder.Services.AddHostedService<TokenCleanupService>();
 
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "FlashDotNet", Version = "v1" });
+    c.SwaggerDoc("v1", new()
+    {
+        Title = "FlashDotNet",
+        Version = "v1",
+        Description = @"
+基于.NET6.0 的的快速开发框架
+<br/>
+<a href='/'>前端页面</a>
+<a href='https://github.com/cr-zhichen/FlashDotNet'>项目地址</a>
+",
+    });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "使用 Bearer 方案的 JWT 授权标头。",
@@ -151,9 +161,10 @@ builder.Services.AddSwaggerGen(c =>
             new List<string>()
         }
     });
-});
 
-builder.Services.AddSwaggerGen(c => { c.CustomSchemaIds(x => x.FullName); });
+    // 使用全命名空间的类名作为SchemaId
+    // c.CustomSchemaIds(x => x.FullName);
+});
 
 #endregion
 
