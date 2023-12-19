@@ -1,10 +1,10 @@
-using System.Diagnostics;
 using System.Reflection;
 using FlashDotNet.Data;
 using FlashDotNet.Enum;
 using FlashDotNet.Filter;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
+using FlashDotNet.Middleware;
 using FlashDotNet.Utils;
 using FlashDotNet.WS;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -313,20 +313,11 @@ app.UseStaticFiles(new StaticFileOptions
 #region 前端配置
 
 int nodeDevPorts = builder.Configuration.GetSection("NodeDevPorts").Get<int>();
+nodeDevPorts = nodeDevPorts == 0 ? PortSelection.GetAvailablePort() : nodeDevPorts;
 
-if (app.Environment.IsDevelopment())
+if (nodeDevPorts != -1 && app.Environment.IsDevelopment())
 {
-    // 开发环境 使用npm启动vue-cli
-    var vueCli = new ProcessStartInfo
-    {
-        FileName = "cmd.exe",
-        Arguments = $"/c npm run dev -- --port {nodeDevPorts}",
-        WorkingDirectory = Path.Combine(Path.Combine(baseDirectory, "ClientApp")),
-        UseShellExecute = false,
-        RedirectStandardError = true
-    };
-    Process.Start(vueCli);
-    app.UseSpa(spa => { spa.UseProxyToSpaDevelopmentServer($"http://localhost:{nodeDevPorts}"); });
+    app.UseVueCli(nodeDevPorts);
 }
 else
 {
