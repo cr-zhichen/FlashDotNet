@@ -78,7 +78,7 @@ public class JwtService : IJwtService
     {
         // 添加一些需要的键值对
         Claim[] claims = {
-            new Claim("user", userId),
+            new Claim("user_id", userId),
             new Claim("role", role)
         };
 
@@ -171,19 +171,20 @@ public class JwtService : IJwtService
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenOptions.SecretKey)),
             ValidateIssuer = true,
-            ValidIssuer = TokenOptions.Issuer,
             ValidateAudience = true,
-            ValidAudience = TokenOptions.Audience
+            ValidateLifetime = TokenOptions.ExpireMinutes != -1,
+            ValidateIssuerSigningKey = true,
+            ValidAudience = TokenOptions.Audience,
+            ValidIssuer = TokenOptions.Issuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenOptions.SecretKey))
         };
 
         try
         {
             tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
             var jwtToken = (JwtSecurityToken)validatedToken;
-            var userClaim = jwtToken.Claims.First(claim => claim.Type == "user");
+            var userClaim = jwtToken.Claims.First(claim => claim.Type == "user_id");
             return Task.FromResult(userClaim.Value);
         }
         catch
