@@ -8,7 +8,7 @@ namespace FlashDotNet.Middleware;
 /// </summary>
 public class VueCliMiddleware
 {
-    private static bool _nodeServiceStarted = false;
+    private static int _nodeServiceStarted = 0;
     private readonly RequestDelegate _next;
     private readonly int _nodeDevPorts;
     private readonly string _baseDirectory;
@@ -32,10 +32,9 @@ public class VueCliMiddleware
     /// <param name="context"></param>
     public async Task InvokeAsync(HttpContext context)
     {
-        if (!_nodeServiceStarted)
+        if (Interlocked.CompareExchange(ref _nodeServiceStarted, 1, 0) == 0)
         {
             StartNodeService();
-            _nodeServiceStarted = true;
         }
 
         await _next(context);
