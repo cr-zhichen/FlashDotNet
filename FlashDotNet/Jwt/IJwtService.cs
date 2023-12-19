@@ -89,7 +89,7 @@ public class JwtService : IJwtService
         DateTime? expires = null;
         if (TokenOptions.ExpireMinutes != -1)
         {
-            expires = DateTime.Now.AddMinutes(TokenOptions.ExpireMinutes);
+            expires = DateTime.UtcNow.AddMinutes(TokenOptions.ExpireMinutes);
         }
 
         var jwtSecurityToken = new JwtSecurityToken(
