@@ -51,10 +51,16 @@ public class UserServices : IUserServices, IMarker
         }
 
         //创建用户
-        var user = await _userRepository.CreateUserAsync(request.Username, request.Password.ToArgon2(request.Username), role);
+        var user = await _userRepository
+            .CreateUserAsync(request.Username, request.Password.ToArgon2(request.Username), role);
 
         //生成JWT
-        var token = await _jwtService.CreateTokenAsync(user.Username, user.Role.ToString());
+        var token = await _jwtService.CreateTokenAsync(new UserInfoTokenData()
+        {
+            UserId = user.UserId,
+            Username = user.Username,
+            Role = role.ToString()
+        });
 
         return new Ok<RegisterResponse>
         {
@@ -84,11 +90,20 @@ public class UserServices : IUserServices, IMarker
             };
         }
 
+        //获取用户id
+        var userId = await _userRepository.GetUserIdAsync(request.Username);
+
         //获取用户角色
-        var role = await _userRepository.GetUserRoleAsync(request.Username);
+        var role = await _userRepository.GetUserRoleAsync(userId);
+
 
         //生成JWT
-        var token = await _jwtService.CreateTokenAsync(request.Username, role.ToString());
+        var token = await _jwtService.CreateTokenAsync(new UserInfoTokenData()
+        {
+            UserId = userId,
+            Username = request.Username,
+            Role = role.ToString()
+        });
 
         return new Ok<LoginResponse>
         {
@@ -134,21 +149,18 @@ public class UserServices : IUserServices, IMarker
     public async Task<IRe<GetUserInfoResponse>> GetUserInfoAsync(string token)
     {
         // 从令牌中获取用户名
-        var username = await _jwtService.GetUsernameAsync(token);
-
-        // 根据用户名获取用户id
-        var userId = await _userRepository.GetUserIdAsync(username);
+        var userInfo = await _jwtService.GetUserInfoAsync(token);
 
         // 获取用户角色
-        var role = await _userRepository.GetUserRoleAsync(userId);
+        var role = await _userRepository.GetUserRoleAsync(userInfo.UserId);
 
         return new Ok<GetUserInfoResponse>
         {
             Message = "获取成功",
             Data = new GetUserInfoResponse
             {
-                UserId = userId,
-                Username = username,
+                UserId = userInfo.UserId,
+                Username = userInfo.Username,
                 Role = role.ToString(),
             }
         };

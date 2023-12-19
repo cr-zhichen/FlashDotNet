@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace FlashDotNet.Jwt;
 
@@ -14,10 +15,9 @@ public interface IJwtService
     /// <summary>
     /// 创建令牌
     /// </summary>
-    /// <param name="userId"></param>
-    /// <param name="role"></param>
+    /// <param name="userInfo"></param>
     /// <returns></returns>
-    Task<string> CreateTokenAsync(string userId, string role);
+    Task<string> CreateTokenAsync(UserInfoTokenData userInfo);
 
     /// <summary>
     /// 验证令牌身份
@@ -28,11 +28,11 @@ public interface IJwtService
     Task<bool> ValidateTokenAsync(string token, string requiredRole = "");
 
     /// <summary>
-    /// 获取令牌中的用户名
+    /// 获取令牌中的用户信息
     /// </summary>
     /// <param name="token"></param>
     /// <returns></returns>
-    Task<string> GetUsernameAsync(string token);
+    Task<UserInfoTokenData> GetUserInfoAsync(string token);
 
     /// <summary>
     /// 注销令牌
@@ -42,11 +42,11 @@ public interface IJwtService
     Task LogoutAsync(string token);
 
     /// <summary>
-    /// 通过用户ID注销令牌
+    /// 根据用户ID注销令牌
     /// </summary>
-    /// <param name="username"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    Task LogoutByIdAsync(string username);
+    Task LogoutByIdAsync(int userId);
 }
 
 /// <summary>
@@ -71,15 +71,14 @@ public class JwtService : IJwtService
     /// <summary>
     /// 创建令牌
     /// </summary>
-    /// <param name="userId"></param>
-    /// <param name="role"></param>
+    /// <param name="userInfo"></param>
     /// <returns></returns>
-    public Task<string> CreateTokenAsync(string userId, string role)
+    public Task<string> CreateTokenAsync(UserInfoTokenData userInfo)
     {
         // 添加一些需要的键值对
-        Claim[] claims = {
-            new Claim("user_id", userId),
-            new Claim("role", role)
+        Claim[] claims =
+        {
+            new Claim("user_info", JsonConvert.SerializeObject(userInfo)),
         };
 
         var keyBytes = Encoding.UTF8.GetBytes(TokenOptions.SecretKey);
@@ -101,7 +100,7 @@ public class JwtService : IJwtService
             signingCredentials: credentials); // 令牌
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-        TokenWhiteList.AddToken(userId, token, expires ?? DateTime.MaxValue);
+        TokenWhiteList.AddToken(userInfo.UserId, token, expires ?? DateTime.MaxValue);
 
         return Task.FromResult(token);
     }
@@ -122,33 +121,16 @@ public class JwtService : IJwtService
             return Task.FromResult(false);
         }
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var validationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = TokenOptions.ExpireMinutes != -1,
-            ValidateIssuerSigningKey = true,
-            ValidAudience = TokenOptions.Audience,
-            ValidIssuer = TokenOptions.Issuer,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenOptions.SecretKey))
-        };
-
         try
         {
-            tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
-
             if (requiredRole == "")
             {
                 return Task.FromResult(true);
             }
 
-            // Now we get the token and check the role claim
-            var jwtToken = (JwtSecurityToken)validatedToken;
-            var roleClaim = jwtToken.Claims.First(claim => claim.Type == "role");
+            UserInfoTokenData userInfo = GetUserInfoAsync(token).Result;
 
-            // Check if the role claim is the expected one
-            if (roleClaim.Value != requiredRole)
+            if (userInfo.Role != requiredRole)
             {
                 return Task.FromResult(false);
             }
@@ -162,11 +144,11 @@ public class JwtService : IJwtService
     }
 
     /// <summary>
-    /// 从令牌中获取用户名
+    /// 从令牌中获取用户信息
     /// </summary>
     /// <param name="token"></param>
     /// <returns></returns>
-    public Task<string> GetUsernameAsync(string token)
+    public Task<UserInfoTokenData> GetUserInfoAsync(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters
@@ -184,12 +166,15 @@ public class JwtService : IJwtService
         {
             tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
             var jwtToken = (JwtSecurityToken)validatedToken;
-            var userClaim = jwtToken.Claims.First(claim => claim.Type == "user_id");
-            return Task.FromResult(userClaim.Value);
+            var userInfoClaim = jwtToken.Claims.First(claim => claim.Type == "user_info");
+
+            UserInfoTokenData userInfo = JsonConvert.DeserializeObject<UserInfoTokenData>(userInfoClaim.Value) ??
+                                         new UserInfoTokenData();
+            return Task.FromResult(userInfo);
         }
         catch
         {
-            return Task.FromResult("");
+            return Task.FromResult(new UserInfoTokenData());
         }
     }
 
@@ -207,11 +192,11 @@ public class JwtService : IJwtService
     }
 
     /// <summary>
-    /// 根据用户名注销令牌
+    /// 根据用户ID注销令牌
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public Task LogoutByIdAsync(string userId)
+    public Task LogoutByIdAsync(int userId)
     {
         TokenWhiteList.RemoveTokenByUserId(userId);
 

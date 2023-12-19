@@ -12,7 +12,7 @@ public static class TokenWhiteList
     /// Key - Token
     /// Value - 用户ID,过期时间
     /// </summary>
-    private static readonly ConcurrentDictionary<string, (string, DateTime)> TokenDictionary = new();
+    private static readonly ConcurrentDictionary<string, (int, DateTime)> TokenDictionary = new();
 
     /// <summary>
     /// 添加Token
@@ -20,7 +20,7 @@ public static class TokenWhiteList
     /// <param name="userId"></param>
     /// <param name="token"></param>
     /// <param name="expireTime">过期时间</param>
-    public static void AddToken(string userId, string token, DateTime expireTime)
+    public static void AddToken(int userId, string token, DateTime expireTime)
     {
         TokenDictionary.TryAdd(token, (userId, expireTime));
     }
@@ -48,7 +48,7 @@ public static class TokenWhiteList
     /// 根据用户ID移除Token
     /// </summary>
     /// <param name="userId"></param>
-    public static void RemoveTokenByUserId(string userId)
+    public static void RemoveTokenByUserId(int userId)
     {
         foreach (var (key, value) in TokenDictionary)
         {

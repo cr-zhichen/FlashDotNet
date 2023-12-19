@@ -34,13 +34,6 @@ public interface IUserRepository
     /// <summary>
     /// 获取用户角色
     /// </summary>
-    /// <param name="username"></param>
-    /// <returns></returns>
-    Task<UserRole> GetUserRoleAsync(string username);
-
-    /// <summary>
-    /// 获取用户角色
-    /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
     Task<UserRole> GetUserRoleAsync(int userId);
