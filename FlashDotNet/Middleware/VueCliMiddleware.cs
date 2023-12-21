@@ -45,27 +45,90 @@ public class VueCliMiddleware
     /// </summary>
     private void StartNodeService()
     {
+        string clientAppDirectory = Path.Combine(_baseDirectory, "ClientApp");
+
+        // 检查 node_modules 目录是否存在
+        if (!Directory.Exists(Path.Combine(clientAppDirectory, "node_modules")))
+        {
+            Console.WriteLine("node_modules目录不存在，开始安装npm包。");
+            // 如果不存在，先运行 npm install 并等待其完成
+            if (!RunCommandAndWait("npm install", clientAppDirectory))
+            {
+                Console.WriteLine("npm安装失败。请检查错误，然后重试。");
+                return;
+            }
+        }
+
+        // npm install 完成后，运行 npm run dev
+        RunCommand("npm run dev -- --port " + _nodeDevPorts, clientAppDirectory);
+    }
+
+    /// <summary>
+    /// 运行npm install命令并等待其完成
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="workingDirectory"></param>
+    /// <returns></returns>
+    private bool RunCommandAndWait(string command, string workingDirectory)
+    {
         string fileName, arguments;
         if (OperatingSystem.IsWindows())
         {
             fileName = "cmd.exe";
-            arguments = $"/c npm run dev -- --port {_nodeDevPorts}";
+            arguments = $"/c {command}";
         }
         else
         {
             fileName = "/bin/bash";
-            arguments = $"-c \"npm run dev -- --port {_nodeDevPorts}\"";
+            arguments = $"-c \"{command}\"";
         }
 
-        var vueCli = new ProcessStartInfo
+        var processStartInfo = new ProcessStartInfo
         {
             FileName = fileName,
             Arguments = arguments,
-            WorkingDirectory = Path.Combine(_baseDirectory, "ClientApp"),
+            WorkingDirectory = workingDirectory,
+            UseShellExecute = false,
+            RedirectStandardOutput = false,
+            RedirectStandardError = false
+        };
+
+        using (var process = Process.Start(processStartInfo))
+        {
+            process.WaitForExit(); // 等待进程完成
+            return process.ExitCode == 0; // 返回进程是否成功完成
+        }
+    }
+
+    /// <summary>
+    /// 运行npm run dev命令
+    /// </summary>
+    /// <param name="command"></param>
+    /// <param name="workingDirectory"></param>
+    private void RunCommand(string command, string workingDirectory)
+    {
+        string fileName, arguments;
+        if (OperatingSystem.IsWindows())
+        {
+            fileName = "cmd.exe";
+            arguments = $"/c {command}";
+        }
+        else
+        {
+            fileName = "/bin/bash";
+            arguments = $"-c \"{command}\"";
+        }
+
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = fileName,
+            Arguments = arguments,
+            WorkingDirectory = workingDirectory,
             UseShellExecute = false,
             RedirectStandardError = true
         };
-        Process.Start(vueCli);
+
+        Process.Start(processStartInfo);
     }
 }
 
