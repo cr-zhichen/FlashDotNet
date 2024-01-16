@@ -24,7 +24,7 @@ public class StartupArt : IHostedService
                      FlashDotNet Powered By ZGCCRUI                     
                 https://github.com/cr-zhichen/FlashDotNet               
                                                                         
- ══════════════════════════════════════════════════════════════════════ 
+ ══════════════════════════════════════════════════════════════════════  
 ");
     }
 

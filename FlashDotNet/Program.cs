@@ -178,7 +178,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     // options.KnownProxies.Clear();
 });
 
-builder.Services.AddSingleton<IHostedService, StartupArt>();
+builder.Services.AddHostedService<StartupArt>();
 
 #endregion
 
