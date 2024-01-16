@@ -16,8 +16,6 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Events;
 
-StartupArt.Print();
-
 #region 应用构建器与配置
 
 //如果是开发环境则使用开发环境配置
@@ -179,6 +177,8 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     // options.KnownNetworks.Clear();
     // options.KnownProxies.Clear();
 });
+
+builder.Services.AddSingleton<IHostedService, StartupArt>();
 
 #endregion
 
