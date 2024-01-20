@@ -12,7 +12,7 @@ namespace FlashDotNet.Services.UserServer;
 /// <summary>
 /// 和测试相关的服务
 /// </summary>
-public class UserServices : IUserServices, IMarker
+public class UserServices : IUserServices, IMarkerAddScopedAsImplementedInterfaces
 {
     /// <summary>
     /// JWT相关的服务

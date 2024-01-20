@@ -1,10 +1,12 @@
 ﻿
+using FlashDotNet.Infrastructure;
+
 namespace FlashDotNet.Utils;
 
 /// <summary>
 /// 显示启动图
 /// </summary>
-public class StartupArt : IHostedService
+public class StartupArt : IHostedService, IMarkerAddHostedService
 {
     /// <summary>
     /// 显示启动图

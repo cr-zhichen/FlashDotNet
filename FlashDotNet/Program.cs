@@ -108,7 +108,6 @@ if (string.IsNullOrEmpty(tokenOptions.Issuer))
 if (string.IsNullOrEmpty(tokenOptions.Audience))
     tokenOptions.Audience = Guid.NewGuid().ToString();
 
-builder.Services.AddTransient<IJwtService, JwtService>();
 builder.Services.Configure<TokenOptions>(options =>
 {
     options.SecretKey = tokenOptions.SecretKey;
@@ -116,8 +115,6 @@ builder.Services.Configure<TokenOptions>(options =>
     options.Audience = tokenOptions.Audience;
     options.ExpireMinutes = tokenOptions.ExpireMinutes;
 });
-
-builder.Services.AddHostedService<TokenCleanupService>();
 
 #endregion
 
@@ -169,7 +166,6 @@ builder.Services.AddSwaggerGen(c =>
 #region 依赖注入
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddTransient<WebSocketController>();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -177,8 +173,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     // options.KnownNetworks.Clear();
     // options.KnownProxies.Clear();
 });
-
-builder.Services.AddHostedService<StartupArt>();
 
 #endregion
 
@@ -225,9 +219,41 @@ else
 builder.Services.Scan(scan => scan
     // 指定要扫描的程序集（假设服务和仓库都在当前程序集）
     .FromAssemblyOf<Program>()
-    .AddClasses(classes => classes.AssignableTo<IMarker>())
+
+    // 自动注册实现 IMarkerAddScoped 接口的类，作为 Scoped 服务
+    .AddClasses(classes => classes.AssignableTo<IMarkerAddScoped>())
+    .AsSelf()
+    .WithScopedLifetime()
+
+    // 自动注册实现 IMarkerAddScopedAsImplementedInterfaces 接口的类，作为 Scoped 服务，并作为实现的接口注册
+    .AddClasses(classes => classes.AssignableTo<IMarkerAddScopedAsImplementedInterfaces>())
     .AsImplementedInterfaces()
     .WithScopedLifetime()
+
+    // 自动注册实现 IMarkerAddTransient 接口的类，作为 Transient 服务
+    .AddClasses(classes => classes.AssignableTo<IMarkerAddTransient>())
+    .AsSelf()
+    .WithTransientLifetime()
+
+    // 自动注册实现 IMarkerAddTransientAsImplementedInterfaces 接口的类，作为 Transient 服务，并作为实现的接口注册
+    .AddClasses(classes => classes.AssignableTo<IMarkerAddTransientAsImplementedInterfaces>())
+    .AsImplementedInterfaces()
+    .WithTransientLifetime()
+
+    // 自动注册实现 IMarkerAddSingleton 接口的类，作为 Singleton 服务
+    .AddClasses(classes => classes.AssignableTo<IMarkerAddSingleton>())
+    .AsSelf()
+    .WithSingletonLifetime()
+
+    // 自动注册实现 IMarkerAddSingletonAsImplementedInterfaces 接口的类，作为 Singleton 服务，并作为实现的接口注册
+    .AddClasses(classes => classes.AssignableTo<IMarkerAddSingletonAsImplementedInterfaces>())
+    .AsImplementedInterfaces()
+    .WithSingletonLifetime()
+
+    // 自动注册实现 IMarkerAddHostedService 接口的类，作为 HostedService
+    .AddClasses(classes => classes.AssignableTo<IMarkerAddHostedService>())
+    .As<IHostedService>()
+    .WithSingletonLifetime()
 );
 
 #endregion

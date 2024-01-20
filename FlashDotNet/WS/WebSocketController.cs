@@ -4,6 +4,7 @@ using System.Text;
 using FlashDotNet.Data;
 using FlashDotNet.DTOs;
 using FlashDotNet.DTOs.WebSocket.Requests;
+using FlashDotNet.Infrastructure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Route = FlashDotNet.Enum.Route;
@@ -13,7 +14,7 @@ namespace FlashDotNet.WS
     /// <summary>
     /// WebSocket控制器
     /// </summary>
-    public class WebSocketController
+    public class WebSocketController : IMarkerAddTransient
     {
         /// <summary>
         /// 用户连接集合

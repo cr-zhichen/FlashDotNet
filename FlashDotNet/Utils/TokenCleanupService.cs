@@ -1,11 +1,12 @@
-﻿using FlashDotNet.Jwt;
+﻿using FlashDotNet.Infrastructure;
+using FlashDotNet.Jwt;
 
 namespace FlashDotNet.Utils;
 
 /// <summary>
 /// Token清理服务
 /// </summary>
-public class TokenCleanupService : IHostedService, IDisposable
+public class TokenCleanupService : IHostedService, IDisposable, IMarkerAddHostedService
 {
     private Timer? _timer;
 
