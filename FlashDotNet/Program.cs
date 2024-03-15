@@ -127,7 +127,7 @@ builder.Services.AddSwaggerGen(c =>
         Title = "FlashDotNet",
         Version = "v1",
         Description = @"
-基于.NET6.0 的的快速开发框架
+基于.NET8.0 的的快速开发框架
 <br/>
 <a href='/'>前端页面</a>
 <a href='https://github.com/cr-zhichen/FlashDotNet'>项目地址</a>
