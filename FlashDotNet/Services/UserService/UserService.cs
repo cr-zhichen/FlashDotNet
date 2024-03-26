@@ -12,7 +12,7 @@ namespace FlashDotNet.Services.UserServer;
 /// <summary>
 /// 和测试相关的服务
 /// </summary>
-public class UserServices : IUserServices, IMarkerAddScopedAsImplementedInterfaces
+public class UserService : IUserService, IMarkerAddScopedAsImplementedInterfaces
 {
     /// <summary>
     /// JWT相关的服务
@@ -29,7 +29,7 @@ public class UserServices : IUserServices, IMarkerAddScopedAsImplementedInterfac
     /// </summary>
     /// <param name="userRepository"></param>
     /// <param name="jwtService"></param>
-    public UserServices(IUserRepository userRepository, IJwtService jwtService)
+    public UserService(IUserRepository userRepository, IJwtService jwtService)
     {
         _userRepository = userRepository;
         _jwtService = jwtService;

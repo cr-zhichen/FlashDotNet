@@ -18,15 +18,15 @@ public class UserController : ControllerBase
     /// <summary>
     /// 用户服务
     /// </summary>
-    private readonly IUserServices _userServices;
+    private readonly IUserService _userService;
 
     /// <summary>
     /// 构造函数
     /// </summary>
-    /// <param name="userServices"></param>
-    public UserController(IUserServices userServices)
+    /// <param name="userService"></param>
+    public UserController(IUserService userService)
     {
-        _userServices = userServices;
+        _userService = userService;
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ public class UserController : ControllerBase
     [HttpPost("register")]
     public async Task<IRe<RegisterResponse>> RegisterAsync(RegisterRequest request)
     {
-        return await _userServices.RegisterAsync(request);
+        return await _userService.RegisterAsync(request);
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class UserController : ControllerBase
     [HttpPost("login")]
     public async Task<IRe<LoginResponse>> LoginAsync(LoginRequest request)
     {
-        return await _userServices.LoginAsync(request);
+        return await _userService.LoginAsync(request);
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public class UserController : ControllerBase
     [HttpGet("get-user-list")]
     public async Task<IRe<List<GetUserListResponse>>> GetUserListAsync()
     {
-        return await _userServices.GetUserListAsync();
+        return await _userService.GetUserListAsync();
     }
 
     /// <summary>
@@ -71,6 +71,6 @@ public class UserController : ControllerBase
     {
         // 获取Token
         var token = Request.Headers["Authorization"].ToString().Split(' ').Last();
-        return await _userServices.GetUserInfoAsync(token);
+        return await _userService.GetUserInfoAsync(token);
     }
 }

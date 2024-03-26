@@ -1,6 +1,6 @@
 {
-    "name": ".NET Core 6.0 & Node.js",
-    "image": "mcr.microsoft.com/vscode/devcontainers/dotnet:6.0", 
+    "name": ".NET Core 8.0 & Node.js",
+    "image": "mcr.microsoft.com/vscode/devcontainers/dotnet:8.0", 
     "customizations": {
         "vscode": {
             "extensions": [

@@ -4,7 +4,7 @@
 
 ## 📌 特性
 
-- 基于 `.NET 6.0`
+- 基于 `.NET 8.0`
 - 启用了 Nullable 参考类型
 - 启用了 Implicit Usings
 - Debug/Release 配置下自动生成文档
@@ -55,7 +55,7 @@
   // 可选值：mysql, sqlite, sqlserver, postgresql
   // 默认值：sqlite
   // 如果为空，默认在程序根目录下创建App.db
-  "DefaultConnection": "sqlite",
+  "DefaultConnection", "sqlite",
   "ConnectionStrings": {
     "MySqlConnection": "server=127.0.0.1;database=FlashDotNet;user=root;password=qwertyuiop",
     // 测试环境使用 Encrypt=False;TrustServerCertificate=True，用于解决SQL Server 的 SSL 连接问题
