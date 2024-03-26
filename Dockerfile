@@ -22,7 +22,7 @@ ENV http_proxy=$HTTP_PROXY \
     https_proxy=$HTTPS_PROXY
 # 复制项目文件
 COPY ["FlashDotNet/FlashDotNet.csproj", "."]
-RUN dotnet restore "FlashDotNet.csproj"
+RUN dotnet restore "FlashDotNet.csproj" --disable-parallel
 COPY . .
 WORKDIR "/src"
 RUN dotnet build "FlashDotNet/FlashDotNet.csproj" -c Release -o /app/build
