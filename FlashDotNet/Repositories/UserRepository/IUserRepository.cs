@@ -4,7 +4,7 @@ using FlashDotNet.Models;
 namespace FlashDotNet.Repositories.TestUser;
 
 /// <summary>
-/// 和TestUser相关的数据库操作
+/// 和User相关的数据库操作
 /// </summary>
 public interface IUserRepository
 {

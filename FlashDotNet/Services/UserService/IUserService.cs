@@ -7,7 +7,7 @@ namespace FlashDotNet.Services.UserServer;
 /// <summary>
 /// 和测试相关的服务接口
 /// </summary>
-public interface IUserServices
+public interface IUserService
 {
     /// <summary>
     /// 用户注册

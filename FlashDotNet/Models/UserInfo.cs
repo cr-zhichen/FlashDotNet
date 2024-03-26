@@ -5,7 +5,7 @@ using FlashDotNet.Enum;
 namespace FlashDotNet.Models;
 
 /// <summary>
-/// 表示数据库中的User表。
+/// 表示数据库中的user_info表。
 /// </summary>
 [Table("user_info")]
 public class UserInfo
