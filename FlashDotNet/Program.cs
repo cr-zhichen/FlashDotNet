@@ -217,44 +217,44 @@ else
 #region Scrutor自动注入
 
 builder.Services.Scan(scan => scan
-    // 指定要扫描的程序集（假设服务和仓库都在当前程序集）
-    .FromAssemblyOf<Program>()
+        // 指定要扫描的程序集（假设服务和仓库都在当前程序集）
+        .FromAssemblyOf<Program>()
 
-    // 自动注册实现 IMarkerAddScoped 接口的类，作为 Scoped 服务
-    .AddClasses(classes => classes.AssignableTo<IMarkerAddScoped>())
-    .AsSelf()
-    .WithScopedLifetime()
+        // 自动注册 MarkerAddScoped 特性的类，作为 Scoped 服务
+        .AddClasses(classes => classes.WithAttribute<MarkerAddScoped>())
+        .AsSelf()
+        .WithScopedLifetime()
 
-    // 自动注册实现 IMarkerAddScopedAsImplementedInterfaces 接口的类，作为 Scoped 服务，并作为实现的接口注册
-    .AddClasses(classes => classes.AssignableTo<IMarkerAddScopedAsImplementedInterfaces>())
-    .AsImplementedInterfaces()
-    .WithScopedLifetime()
+        // 自动注册 MarkerAddScopedAsImplementedInterfaces 特性的类，作为 Scoped 服务，并作为实现的接口注册
+        .AddClasses(classes => classes.WithAttribute<MarkerAddScopedAsImplementedInterfaces>())
+        .AsImplementedInterfaces()
+        .WithScopedLifetime()
 
-    // 自动注册实现 IMarkerAddTransient 接口的类，作为 Transient 服务
-    .AddClasses(classes => classes.AssignableTo<IMarkerAddTransient>())
-    .AsSelf()
-    .WithTransientLifetime()
+        // 自动注册 MarkerAddTransient 特性的类，作为 Transient 服务
+        .AddClasses(classes => classes.WithAttribute<MarkerAddTransient>())
+        .AsSelf()
+        .WithTransientLifetime()
 
-    // 自动注册实现 IMarkerAddTransientAsImplementedInterfaces 接口的类，作为 Transient 服务，并作为实现的接口注册
-    .AddClasses(classes => classes.AssignableTo<IMarkerAddTransientAsImplementedInterfaces>())
-    .AsImplementedInterfaces()
-    .WithTransientLifetime()
+        // 自动注册 MarkerAddTransientAsImplementedInterfaces 特性的类，作为 Transient 服务，并作为实现的接口注册
+        .AddClasses(classes => classes.WithAttribute<MarkerAddTransientAsImplementedInterfaces>())
+        .AsImplementedInterfaces()
+        .WithTransientLifetime()
 
-    // 自动注册实现 IMarkerAddSingleton 接口的类，作为 Singleton 服务
-    .AddClasses(classes => classes.AssignableTo<IMarkerAddSingleton>())
-    .AsSelf()
-    .WithSingletonLifetime()
+        // 自动注册 MarkerAddSingleton 特性的类，作为 Singleton 服务
+        .AddClasses(classes => classes.WithAttribute<MarkerAddSingleton>())
+        .AsSelf()
+        .WithSingletonLifetime()
 
-    // 自动注册实现 IMarkerAddSingletonAsImplementedInterfaces 接口的类，作为 Singleton 服务，并作为实现的接口注册
-    .AddClasses(classes => classes.AssignableTo<IMarkerAddSingletonAsImplementedInterfaces>())
-    .AsImplementedInterfaces()
-    .WithSingletonLifetime()
+        // 自动注册 MarkerAddSingletonAsImplementedInterfaces 特性的类，作为 Singleton 服务，并作为实现的接口注册
+        .AddClasses(classes => classes.WithAttribute<MarkerAddSingletonAsImplementedInterfaces>())
+        .AsImplementedInterfaces()
+        .WithSingletonLifetime()
 
-    // 自动注册实现 IMarkerAddHostedService 接口的类，作为 HostedService
-    .AddClasses(classes => classes.AssignableTo<IMarkerAddHostedService>())
-    .As<IHostedService>()
-    .WithSingletonLifetime()
-);
+        // 自动注册 MarkerAddHostedService 特性的类，作为 HostedService 服务
+        .AddClasses(classes => classes.WithAttribute<MarkerAddHostedService>())
+        .As<IHostedService>()
+        .WithSingletonLifetime()
+    );
 
 #endregion
 
@@ -286,7 +286,11 @@ app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// 如果使用 app.MapControllers() 则会导致在开发环境下app.UseVueCli()与app.UseRouting()冲突
+#pragma warning disable ASP0014
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+#pragma warning restore ASP0014
 
 #endregion
 
@@ -342,7 +346,7 @@ app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(resourcesPath),
     RequestPath = "/resources",
-    OnPrepareResponse = ctx => { ctx.Context.Response.Headers.Add("Access-Control-Allow-Origin", "*"); }
+    OnPrepareResponse = ctx => { ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*"); }
 });
 
 #endregion

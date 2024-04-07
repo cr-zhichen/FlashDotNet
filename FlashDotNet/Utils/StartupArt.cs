@@ -6,7 +6,8 @@ namespace FlashDotNet.Utils;
 /// <summary>
 /// 显示启动图
 /// </summary>
-public class StartupArt : IHostedService, IMarkerAddHostedService
+[MarkerAddHostedService]
+public class StartupArt : IHostedService
 {
     /// <summary>
     /// 显示启动图

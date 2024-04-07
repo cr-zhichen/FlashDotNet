@@ -53,7 +53,8 @@ public interface IJwtService
 /// <summary>
 /// 表示JWT服务，该服务提供用于创建、验证和管理JWT令牌的功能。
 /// </summary>
-public class JwtService : IJwtService, IMarkerAddTransientAsImplementedInterfaces
+[MarkerAddTransientAsImplementedInterfaces]
+public class JwtService : IJwtService
 {
     /// <summary>
     /// 构造函数

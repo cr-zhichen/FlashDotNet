@@ -10,7 +10,8 @@ namespace FlashDotNet.Repositories.TestUser;
 /// <summary>
 /// 和TestUser相关的数据库操作
 /// </summary>
-public class UserRepository : IUserRepository, IMarkerAddScopedAsImplementedInterfaces
+[MarkerAddScopedAsImplementedInterfaces]
+public class UserRepository : IUserRepository
 {
     private readonly AppDbContext _context;
 

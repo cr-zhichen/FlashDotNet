@@ -6,7 +6,8 @@ namespace FlashDotNet.Utils;
 /// <summary>
 /// Token清理服务
 /// </summary>
-public class TokenCleanupService : IHostedService, IDisposable, IMarkerAddHostedService
+[MarkerAddHostedService]
+public class TokenCleanupService : IHostedService, IDisposable
 {
     private Timer? _timer;
 

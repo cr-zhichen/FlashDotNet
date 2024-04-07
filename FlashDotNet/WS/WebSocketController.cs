@@ -14,7 +14,8 @@ namespace FlashDotNet.WS
     /// <summary>
     /// WebSocket控制器
     /// </summary>
-    public class WebSocketController : IMarkerAddTransient
+    [MarkerAddTransient]
+    public class WebSocketController
     {
         /// <summary>
         /// 用户连接集合
