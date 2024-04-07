@@ -1,7 +1,7 @@
 ﻿using FlashDotNet.Enum;
 using FlashDotNet.Models;
 
-namespace FlashDotNet.Repositories.TestUser;
+namespace FlashDotNet.Repositories.UserRepository;
 
 /// <summary>
 /// 和User相关的数据库操作

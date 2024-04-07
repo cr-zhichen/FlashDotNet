@@ -4,15 +4,15 @@ using FlashDotNet.DTOs.HTTP.Responses;
 using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
-using FlashDotNet.Repositories.TestUser;
+using FlashDotNet.Repositories.UserRepository;
 using FlashDotNet.Utils;
 
-namespace FlashDotNet.Services.UserServer;
+namespace FlashDotNet.Services.UserService;
 
 /// <summary>
-/// 和测试相关的服务
+/// 和用户相关的服务
 /// </summary>
-[MarkerAddScopedAsImplementedInterfaces]
+[AddScopedAsImplementedInterfaces]
 public class UserService : IUserService
 {
     /// <summary>

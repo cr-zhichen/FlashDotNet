@@ -5,14 +5,17 @@ using FlashDotNet.Models;
 using FlashDotNet.Utils;
 using Microsoft.EntityFrameworkCore;
 
-namespace FlashDotNet.Repositories.TestUser;
+namespace FlashDotNet.Repositories.UserRepository;
 
 /// <summary>
-/// 和TestUser相关的数据库操作
+/// 和User相关的数据库操作
 /// </summary>
-[MarkerAddScopedAsImplementedInterfaces]
+[AddScopedAsImplementedInterfaces]
 public class UserRepository : IUserRepository
 {
+    /// <summary>
+    /// 数据库上下文
+    /// </summary>
     private readonly AppDbContext _context;
 
     /// <summary>

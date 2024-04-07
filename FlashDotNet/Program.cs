@@ -221,37 +221,37 @@ builder.Services.Scan(scan => scan
         .FromAssemblyOf<Program>()
 
         // 自动注册 MarkerAddScoped 特性的类，作为 Scoped 服务
-        .AddClasses(classes => classes.WithAttribute<MarkerAddScoped>())
+        .AddClasses(classes => classes.WithAttribute<AddScopedAttribute>())
         .AsSelf()
         .WithScopedLifetime()
 
         // 自动注册 MarkerAddScopedAsImplementedInterfaces 特性的类，作为 Scoped 服务，并作为实现的接口注册
-        .AddClasses(classes => classes.WithAttribute<MarkerAddScopedAsImplementedInterfaces>())
+        .AddClasses(classes => classes.WithAttribute<AddScopedAsImplementedInterfacesAttribute>())
         .AsImplementedInterfaces()
         .WithScopedLifetime()
 
         // 自动注册 MarkerAddTransient 特性的类，作为 Transient 服务
-        .AddClasses(classes => classes.WithAttribute<MarkerAddTransient>())
+        .AddClasses(classes => classes.WithAttribute<AddTransientAttribute>())
         .AsSelf()
         .WithTransientLifetime()
 
         // 自动注册 MarkerAddTransientAsImplementedInterfaces 特性的类，作为 Transient 服务，并作为实现的接口注册
-        .AddClasses(classes => classes.WithAttribute<MarkerAddTransientAsImplementedInterfaces>())
+        .AddClasses(classes => classes.WithAttribute<AddTransientAsImplementedInterfacesAttribute>())
         .AsImplementedInterfaces()
         .WithTransientLifetime()
 
         // 自动注册 MarkerAddSingleton 特性的类，作为 Singleton 服务
-        .AddClasses(classes => classes.WithAttribute<MarkerAddSingleton>())
+        .AddClasses(classes => classes.WithAttribute<AddSingletonAttribute>())
         .AsSelf()
         .WithSingletonLifetime()
 
         // 自动注册 MarkerAddSingletonAsImplementedInterfaces 特性的类，作为 Singleton 服务，并作为实现的接口注册
-        .AddClasses(classes => classes.WithAttribute<MarkerAddSingletonAsImplementedInterfaces>())
+        .AddClasses(classes => classes.WithAttribute<AddSingletonAsImplementedInterfacesAttribute>())
         .AsImplementedInterfaces()
         .WithSingletonLifetime()
 
         // 自动注册 MarkerAddHostedService 特性的类，作为 HostedService 服务
-        .AddClasses(classes => classes.WithAttribute<MarkerAddHostedService>())
+        .AddClasses(classes => classes.WithAttribute<AddHostedServiceAttribute>())
         .As<IHostedService>()
         .WithSingletonLifetime()
     );
