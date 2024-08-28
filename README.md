@@ -51,22 +51,26 @@
 数据库配置现在通过 `appsettings.json` 文件进行。在启动应用程序时，确保配置文件中包含正确的数据库连接字符串。
 
 修改后的配置信息如下所示：
-  ```json
-  // 可选值：mysql, sqlite, sqlserver, postgresql
-  // 默认值：sqlite
-  // 如果为空，默认在程序根目录下创建App.db
-  "DefaultConnection", "sqlite",
-  "ConnectionStrings": {
-    "MySqlConnection": "server=127.0.0.1;database=FlashDotNet;user=root;password=qwertyuiop",
-    // 测试环境使用 Encrypt=False;TrustServerCertificate=True，用于解决SQL Server 的 SSL 连接问题
-    // 正式环境请使用 Encrypt=True;TrustServerCertificate=False，或者删除这两个参数
-    "SqlServerConnection": "Server=127.0.0.1;Database=FlashDotNet;User Id=sa;Password=Qwertyuiop1234;Encrypt=False;TrustServerCertificate=True;",
-    "SqliteConnection": "Data Source=App.db",
-    "PostgreSqlConnection": "Host=127.0.0.1;Database=FlashDotNet;Username=postgres;Password=qwertyuiop"
-  }
+
+  ```json5
+{
+    // 可选值：mysql, sqlite, sqlserver, postgresql
+    // 默认值：sqlite
+    // 为空默认在程序根目录下创建App.db
+    "DefaultConnection": "sqlite",
+    "ConnectionStrings": {
+        "MySqlConnection": "server=127.0.0.1;database=FlashDotNet;user=root;password=qwertyuiop",
+        // 测试环境使用 Encrypt=False;TrustServerCertificate=True;用于解决SQL Server 的 SSL 连接问题
+        // 正式环境请使用 Encrypt=True;TrustServerCertificate=False;或者删除这两个参数
+        "SqlServerConnection": "Server=127.0.0.1;Database=FlashDotNet;User Id=sa;Password=Qwertyuiop1234;Encrypt=False;TrustServerCertificate=True;",
+        "SqliteConnection": "Data Source=App.db",
+        "PostgreSqlConnection": "Host=127.0.0.1;Database=FlashDotNet;Username=postgres;Password=qwertyuiop"
+    },
+}
   ```
 
-例如，如果希望使用 MySQL 数据库，则需要在 `DefaultConnection` 中设置为 `"mysql"` 并使用 `MySqlConnection` 字符串。同理，对于其他数据库类型也是如此。
+例如，如果希望使用 MySQL 数据库，则需要在 `DefaultConnection` 中设置为 `"mysql"` 并使用 `MySqlConnection`
+字符串。同理，对于其他数据库类型也是如此。
 
 ### 🚀 控制器与端点
 
