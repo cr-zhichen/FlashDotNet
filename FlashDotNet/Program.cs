@@ -14,7 +14,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Events;
 
 #region 应用构建器与配置
 
@@ -31,13 +30,7 @@ if (isDevelopment)
 // 配置Serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    .WriteTo.File(Path.Combine(baseDirectory, "Logs/AllLogs/Log.txt"), rollingInterval: RollingInterval.Day)
-    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Information/Log-Information-.txt"),
-        restrictedToMinimumLevel: LogEventLevel.Information, rollingInterval: RollingInterval.Day)
-    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Warning/Log-Warning-.txt"),
-        restrictedToMinimumLevel: LogEventLevel.Warning, rollingInterval: RollingInterval.Day)
-    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Error/Log-Error-.txt"),
-        restrictedToMinimumLevel: LogEventLevel.Error, rollingInterval: RollingInterval.Day)
+    .WriteTo.SQLite(Path.Combine(baseDirectory, "Logs.db"))
     .CreateLogger();
 
 // 如果没有wwwroot文件夹则创建
@@ -260,6 +253,8 @@ builder.Services.Scan(scan => scan
 
 var app = builder.Build();
 
+app.UseSerilogRequestLogging(); // 使用 Serilog 记录 HTTP 请求日志
+
 #region 使用响应压缩中间件
 
 app.UseResponseCompression();
@@ -277,20 +272,6 @@ if (isUseSwagger == nameof(UseSwaggerType.True).ToLower() ||
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-#endregion
-
-#region 基础中间件配置
-
-app.UseRouting();
-app.UseCors("AllowAll");
-app.UseAuthentication();
-app.UseAuthorization();
-
-// 如果使用 app.MapControllers() 则会导致在开发环境下app.UseVueCli()与app.UseRouting()冲突
-#pragma warning disable ASP0014
-app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-#pragma warning restore ASP0014
 
 #endregion
 
@@ -322,6 +303,20 @@ app.Use(async (context, next) =>
         await next();
     }
 });
+
+#endregion
+
+#region 基础中间件配置
+
+app.UseRouting();
+app.UseCors("AllowAll");
+app.UseAuthentication();
+app.UseAuthorization();
+
+// 如果使用 app.MapControllers() 则会导致在开发环境下app.UseVueCli()与app.UseRouting()冲突
+#pragma warning disable ASP0014
+app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+#pragma warning restore ASP0014
 
 #endregion
 

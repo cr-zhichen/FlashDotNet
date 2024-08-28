@@ -1,10 +1,16 @@
-﻿using System.Security.Cryptography;
+﻿using System.Collections.Concurrent;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Konscious.Security.Cryptography;
 
 namespace FlashDotNet.Utils;
 
+/// <summary>
+/// 扩展方法
+/// </summary>
 public static class Expand
 {
     # region 链式调用
@@ -359,6 +365,134 @@ public static class Expand
 
     #endregion
 
+    #region 枚举相关
+
+    /// <summary>
+    /// 获取枚举值的 DisplayAttribute 特性名称；如果未使用该特性，则返回枚举的名称。
+    /// </summary>
+    /// <param name="enumValue">枚举值。</param>
+    /// <returns>特性名称或枚举的名称。</returns>
+    /// <exception cref="ArgumentNullException">当传入的 enumValue 为空时抛出。</exception>
+    public static string GetDisplayName(this System.Enum enumValue)
+    {
+        if (enumValue == null)
+            throw new ArgumentNullException(nameof(enumValue), "enumValue 不能为空。");
+
+        FieldInfo? fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
+
+        if (fieldInfo == null)
+            throw new ArgumentException("无效的枚举值。", nameof(enumValue));
+
+        return (fieldInfo.GetCustomAttributes(typeof(DisplayAttribute), false)
+                   is DisplayAttribute[] { Length: > 0 } attrs
+                   ? attrs[0].Name
+                   : enumValue.ToString())
+               ?? throw new Exception("获取枚举值的 DisplayAttribute 特性名称失败。");
+    }
+
+    /// <summary>
+    /// 获取枚举值的 DisplayAttribute 特性说明；如果未使用该特性，则返回枚举的名称。
+    /// </summary>
+    /// <param name="enumValue">枚举值。</param>
+    /// <returns>特性说明或枚举的名称。</returns>
+    /// <exception cref="ArgumentNullException">当传入的 enumValue 为空时抛出。</exception>
+    public static string GetDisplayDescription(this System.Enum enumValue)
+    {
+        if (enumValue == null)
+            throw new ArgumentNullException(nameof(enumValue), "enumValue 不能为空。");
+
+        FieldInfo? fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
+
+        if (fieldInfo == null)
+            throw new ArgumentException("无效的枚举值。", nameof(enumValue));
+
+        return (fieldInfo.GetCustomAttributes(typeof(DisplayAttribute), false)
+                   is DisplayAttribute[] { Length: > 0 } attrs
+                   ? attrs[0].Description
+                   : enumValue.ToString())
+               ?? throw new Exception("获取枚举值的 DisplayAttribute 特性说明失败。");
+    }
+
+    /// <summary>
+    /// 将字符串转换为枚举值，转换失败时返回默认值。
+    /// </summary>
+    /// <typeparam name="TEnum">枚举类型</typeparam>
+    /// <param name="enumString">要转换的字符串</param>
+    /// <param name="ignoreCase">是否忽略大小写</param>
+    /// <returns>转换后的枚举值，如果转换失败则返回默认值</returns>
+    public static TEnum ToEnum<TEnum>(this string enumString, bool ignoreCase = true) where TEnum:struct
+    {
+        if (System.Enum.TryParse(enumString, ignoreCase, out TEnum result))
+        {
+            return result;
+        }
+
+        throw new ArgumentException($"无法将字符串 '{enumString}' 转换为枚举类型 {typeof(TEnum).Name}。");
+    }
+
+    private readonly static ConcurrentDictionary<Type, Dictionary<string, object?>> DisplayNameMap =
+        new ConcurrentDictionary<Type, Dictionary<string, object?>>();
+
+    private readonly static ConcurrentDictionary<Type, Dictionary<string, object?>> DisplayDescriptionMap =
+        new ConcurrentDictionary<Type, Dictionary<string, object?>>();
+
+    /// <summary>
+    /// 根据 <see cref="DisplayAttribute"/> 的 Name 或 Description 将字符串转换为对应的枚举值。
+    /// </summary>
+    /// <typeparam name="TEnum">要转换的枚举类型。此类型必须是一个枚举。</typeparam>
+    /// <param name="displayString">
+    /// 要转换的字符串。可以是 <see cref="DisplayAttribute"/> 的 Name、Description 或枚举字段的名称。
+    /// </param>
+    /// <returns>
+    /// 返回对应的枚举值，如果没有找到匹配的字符串，则抛出异常。
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// 当指定的字符串无法匹配任何 <see cref="DisplayAttribute"/> 的 Name、Description 或枚举字段名称时抛出异常。
+    /// </exception>
+    public static TEnum FromDisplayString<TEnum>(this string displayString) where TEnum:struct
+    {
+        Type enumType = typeof(TEnum);
+
+        // 检查并生成缓存
+        if (!DisplayNameMap.ContainsKey(enumType))
+        {
+            var nameMap = new Dictionary<string, object?>();
+            var descriptionMap = new Dictionary<string, object?>();
+
+            foreach (var field in enumType.GetFields(BindingFlags.Public | BindingFlags.Static))
+            {
+                if (System.Attribute.GetCustomAttribute(field, typeof(DisplayAttribute)) is DisplayAttribute attribute)
+                {
+                    if (!string.IsNullOrEmpty(attribute.Name))
+                    {
+                        nameMap[attribute.Name] = field.GetValue(null);
+                    }
+                    if (!string.IsNullOrEmpty(attribute.Description))
+                    {
+                        descriptionMap[attribute.Description] = field.GetValue(null);
+                    }
+                }
+                nameMap[field.Name] = field.GetValue(null);
+            }
+
+            DisplayNameMap[enumType] = nameMap;
+            DisplayDescriptionMap[enumType] = descriptionMap;
+        }
+
+        // 从缓存中查找
+        if (DisplayNameMap[enumType].TryGetValue(displayString, out var value) ||
+            DisplayDescriptionMap[enumType].TryGetValue(displayString, out value))
+        {
+            return (TEnum)(value ?? throw new Exception("枚举值为空"));
+        }
+
+        throw new ArgumentException($"没有找到匹配的枚举值对于字符串 '{displayString}' 在枚举类型 {enumType.Name} 中。");
+    }
+
+    #endregion
+
+    #region Try Catch
+
     /// <summary>
     /// Try Catch 简易封装 异步
     /// </summary>
@@ -372,7 +506,7 @@ public static class Expand
         Action<TException>? onException = null,
         Action? onFinally = null
     )
-        where TException : Exception
+        where TException:Exception
     {
         try
         {
@@ -417,4 +551,6 @@ public static class Expand
             onFinally?.Invoke();
         }
     }
+
+    #endregion
 }

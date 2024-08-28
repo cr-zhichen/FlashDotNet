@@ -1,4 +1,6 @@
-﻿using FlashDotNet.Models;
+﻿using FlashDotNet.Enum;
+using FlashDotNet.Models;
+using FlashDotNet.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlashDotNet.Data;
@@ -19,13 +21,13 @@ public class AppDbContext : DbContext
     /// <summary>
     /// UserInfo 表
     /// </summary>
-    public DbSet<UserInfo> TestUser { get; set; }
+    public DbSet<User> Users { get; set; }
 
     /// <summary>
     /// 数据库配置
     /// </summary>
     /// <param name="optionsBuilder"></param>
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
     }
 
@@ -33,16 +35,16 @@ public class AppDbContext : DbContext
     /// 配置模型
     /// </summary>
     /// <param name="modelBuilder"></param>
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    override protected void OnModelCreating(ModelBuilder modelBuilder)
     {
         // 配置 UserInfo 表的映射
         modelBuilder
-            .Entity<UserInfo>(entity =>
+            .Entity<User>(entity =>
             {
-                entity.HasKey(e => e.UserId).HasName("PRIMARY");
-                entity.Property(e => e.UserId).ValueGeneratedOnAdd();
-                entity.HasIndex(u => u.Username).IsUnique();
-                entity.Property(e => e.Role).HasConversion<string>();
+                // 配置 Role 属性的转换，使用字符串存储枚举值或其他类型的角色数据
+                entity
+                    .Property(e => e.Role)
+                    .HasConversion(v => v.GetDisplayName(), v => v.FromDisplayString<UserRole>());
             });
     }
 }

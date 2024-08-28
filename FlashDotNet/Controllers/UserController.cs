@@ -54,8 +54,8 @@ public class UserController : ControllerBase
     /// 获取全部用户信息（仅限管理员）
     /// </summary>
     /// <returns></returns>
-    [Auth(nameof(UserRole.Admin))]
-    [HttpGet("get-user-list")]
+    [Auth(UserRole.Admin)]
+    [HttpPost("get-user-list")]
     public async Task<IRe<List<GetUserListResponse>>> GetUserListAsync()
     {
         return await _userService.GetUserListAsync();
@@ -66,7 +66,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [Auth]
-    [HttpGet("get-user-info")]
+    [HttpPost("get-user-info")]
     public async Task<IRe<GetUserInfoResponse>> GetUserInfoAsync()
     {
         // 获取Token

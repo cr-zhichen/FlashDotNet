@@ -33,7 +33,7 @@ public interface IJwtService
     /// </summary>
     /// <param name="token"></param>
     /// <returns></returns>
-    Task<UserInfoTokenData> GetUserInfoAsync(string token);
+    Task<UserInfoTokenData?> GetUserInfoAsync(string token);
 
     /// <summary>
     /// 注销令牌
@@ -79,9 +79,9 @@ public class JwtService : IJwtService
     {
         // 添加一些需要的键值对
         Claim[] claims =
-        {
-            new Claim("user_info", JsonConvert.SerializeObject(userInfo)),
-        };
+        [
+            new Claim("user_info", JsonConvert.SerializeObject(userInfo))
+        ];
 
         var keyBytes = Encoding.UTF8.GetBytes(TokenOptions.SecretKey);
         var credentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes),
@@ -130,7 +130,7 @@ public class JwtService : IJwtService
                 return Task.FromResult(true);
             }
 
-            UserInfoTokenData userInfo = GetUserInfoAsync(token).Result;
+            UserInfoTokenData userInfo = GetUserInfoAsync(token).Result!;
 
             if (userInfo.Role != requiredRole)
             {
@@ -150,7 +150,7 @@ public class JwtService : IJwtService
     /// </summary>
     /// <param name="token"></param>
     /// <returns></returns>
-    public Task<UserInfoTokenData> GetUserInfoAsync(string token)
+    public Task<UserInfoTokenData?> GetUserInfoAsync(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters
@@ -172,11 +172,11 @@ public class JwtService : IJwtService
 
             UserInfoTokenData userInfo = JsonConvert.DeserializeObject<UserInfoTokenData>(userInfoClaim.Value) ??
                                          new UserInfoTokenData();
-            return Task.FromResult(userInfo);
+            return Task.FromResult(userInfo)!;
         }
         catch
         {
-            return Task.FromResult(new UserInfoTokenData());
+            return Task.FromResult(null as UserInfoTokenData);
         }
     }
 

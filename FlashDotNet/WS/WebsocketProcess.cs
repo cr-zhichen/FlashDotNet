@@ -1,5 +1,6 @@
 ﻿using FlashDotNet.DTOs;
 using FlashDotNet.DTOs.WebSocket.Requests;
+using FlashDotNet.Utils;
 using Newtonsoft.Json.Linq;
 using Route = FlashDotNet.Enum.Route;
 
@@ -10,14 +11,20 @@ namespace FlashDotNet.WS;
 /// </summary>
 public static class WebsocketProcess
 {
+    private readonly static Dictionary<string, Func<UserConnection, WsReq, Task>> RouteHandlers = new Dictionary<string, Func<UserConnection, WsReq, Task>>
+    {
+        { Route.Test.GetDisplayName(), HandleTestRoute }
+    };
+
     /// <summary>
-    /// 处理websocket请求
+    /// 处理WebSocket请求
     /// </summary>
     /// <param name="socket"></param>
     /// <param name="data"></param>
     public static async Task Process(UserConnection socket, WsReq data)
     {
         string routeString;
+
         try
         {
             routeString = data.Route ?? throw new InvalidOperationException();
@@ -26,7 +33,7 @@ public static class WebsocketProcess
         {
             var re = new WsError<JObject>
             {
-                Route = Route.Error.ToString(),
+                Route = Route.Error.GetDisplayName(),
                 Message = "路由请求错误，请检查路由是否正确",
                 Data = JObject.FromObject(e),
             };
@@ -36,23 +43,26 @@ public static class WebsocketProcess
             throw;
         }
 
-        switch (routeString)
+        if (RouteHandlers.TryGetValue(routeString, out var handler))
         {
-            //测试路由
-            case nameof(Route.Test):
-                await socket.SendMessageAsync(JObject.FromObject(new WsOk<JObject>
-                {
-                    Route = Route.Test.ToString(),
-                    Data = data.Data,
-                }));
-                break;
-            //其他路由
-            default:
-                await socket.SendMessageAsync(JObject.FromObject(new WsError<JObject>
-                {
-                    Route = Route.Error.ToString(), Message = "请求路由错误，请检查路由是否正确",
-                }));
-                break;
+            await handler(socket, data);
         }
+        else
+        {
+            await socket.SendMessageAsync(JObject.FromObject(new WsError<JObject>
+            {
+                Route = Route.Error.GetDisplayName(),
+                Message = "请求路由错误，请检查路由是否正确",
+            }));
+        }
+    }
+
+    private static async Task HandleTestRoute(UserConnection socket, WsReq data)
+    {
+        await socket.SendMessageAsync(JObject.FromObject(new WsOk<JObject>
+        {
+            Route = Route.Test.GetDisplayName(),
+            Data = data.Data,
+        }));
     }
 }

@@ -60,7 +60,7 @@ public class UserService : IUserService
         {
             UserId = user.UserId,
             Username = user.Username,
-            Role = role.ToString()
+            Role = role.GetDisplayName()
         });
 
         return new Ok<RegisterResponse>
@@ -69,7 +69,7 @@ public class UserService : IUserService
             Data = new RegisterResponse
             {
                 Username = user.Username,
-                Role = user.Role.ToString(),
+                Role = user.Role.GetDisplayName(),
                 Token = token
             }
         };
@@ -97,13 +97,12 @@ public class UserService : IUserService
         //获取用户角色
         var role = await _userRepository.GetUserRoleAsync(userId);
 
-
         //生成JWT
         var token = await _jwtService.CreateTokenAsync(new UserInfoTokenData()
         {
             UserId = userId,
             Username = request.Username,
-            Role = role.ToString()
+            Role = role.GetDisplayName()
         });
 
         return new Ok<LoginResponse>
@@ -112,7 +111,7 @@ public class UserService : IUserService
             Data = new LoginResponse
             {
                 Username = request.Username,
-                Role = role.ToString(),
+                Role = role.GetDisplayName(),
                 Token = token
             }
         };
@@ -132,7 +131,7 @@ public class UserService : IUserService
         {
             UserId = x.UserId,
             Username = x.Username,
-            Role = x.Role.ToString(),
+            Role = x.Role.GetDisplayName(),
         }).ToList();
 
         return new Ok<List<GetUserListResponse>>
@@ -153,7 +152,7 @@ public class UserService : IUserService
         var userInfo = await _jwtService.GetUserInfoAsync(token);
 
         // 获取用户角色
-        var role = await _userRepository.GetUserRoleAsync(userInfo.UserId);
+        var role = await _userRepository.GetUserRoleAsync(userInfo!.UserId);
 
         return new Ok<GetUserInfoResponse>
         {
@@ -162,7 +161,7 @@ public class UserService : IUserService
             {
                 UserId = userInfo.UserId,
                 Username = userInfo.Username,
-                Role = role.ToString(),
+                Role = role.GetDisplayName(),
             }
         };
     }

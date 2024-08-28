@@ -1,6 +1,7 @@
 ﻿using FlashDotNet.DTOs;
 using FlashDotNet.Enum;
 using FlashDotNet.Jwt;
+using FlashDotNet.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -11,11 +12,23 @@ namespace FlashDotNet.Attribute;
 /// </summary>
 public class AuthAttribute : ActionFilterAttribute
 {
-    private readonly string _requiredRole;
+    private readonly UserRole? _requiredRole;
 
-    public AuthAttribute(string requiredRole = "")
+    /// <summary>
+    /// 验证JWT Token
+    /// </summary>
+    /// <param name="requiredRole">用户角色</param>
+    public AuthAttribute(UserRole requiredRole)
     {
         _requiredRole = requiredRole;
+    }
+
+    /// <summary>
+    /// 验证JWT Token
+    /// </summary>
+    public AuthAttribute()
+    {
+        _requiredRole = null;
     }
 
     /// <summary>
@@ -30,7 +43,9 @@ public class AuthAttribute : ActionFilterAttribute
         // 使用服务定位器来获取 IJwtService
         var jwtService = context.HttpContext.RequestServices.GetService<IJwtService>();
 
-        var isValid = await jwtService.ValidateTokenAsync(token, _requiredRole);
+        string requiredRoleString = _requiredRole?.GetDisplayName() ?? "";
+
+        var isValid = await jwtService!.ValidateTokenAsync(token, requiredRoleString);
 
         if (!isValid)
         {

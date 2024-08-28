@@ -33,7 +33,7 @@ public class UserRepository : IUserRepository
     /// <returns></returns>
     public async Task<bool> IsEmptyAsync()
     {
-        return !await _context.TestUser.AnyAsync();
+        return !await _context.Users.AnyAsync();
     }
 
     /// <summary>
@@ -43,15 +43,15 @@ public class UserRepository : IUserRepository
     /// <param name="argon2Password"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    public async Task<UserInfo> CreateUserAsync(string username, string argon2Password, UserRole role = UserRole.User)
+    public async Task<User> CreateUserAsync(string username, string argon2Password, UserRole role = UserRole.User)
     {
-        var user = new UserInfo
+        var user = new User
         {
             Username = username,
-            Password = argon2Password,
+            PasswordHash = argon2Password,
             Role = role,
         };
-        _context.TestUser.Add(user);
+        _context.Users.Add(user);
 
         await _context.SaveChangesAsync()
             .TryAsync(new Action<DbUpdateException>(_ => throw new ArgumentException("用户名已存在")));
@@ -67,8 +67,8 @@ public class UserRepository : IUserRepository
     /// <returns></returns>
     public async Task<bool> CheckPasswordAsync(string username, string argon2Password)
     {
-        return await _context.TestUser.AsNoTracking().AnyAsync(x =>
-            x.Username == username && x.Password == argon2Password);
+        return await _context.Users.AsNoTracking().AnyAsync(x =>
+            x.Username == username && x.PasswordHash == argon2Password);
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ public class UserRepository : IUserRepository
     /// <returns></returns>
     public async Task<UserRole> GetUserRoleAsync(string username)
     {
-        return await _context.TestUser.AsNoTracking().Where(x => x.Username == username).Select(x => x.Role)
+        return await _context.Users.AsNoTracking().Where(x => x.Username == username).Select(x => x.Role)
             .FirstAsync();
     }
 
@@ -89,7 +89,7 @@ public class UserRepository : IUserRepository
     /// <returns></returns>
     public async Task<UserRole> GetUserRoleAsync(int userId)
     {
-        return await _context.TestUser.AsNoTracking().Where(x => x.UserId == userId).Select(x => x.Role)
+        return await _context.Users.AsNoTracking().Where(x => x.UserId == userId).Select(x => x.Role)
             .FirstAsync();
     }
 
@@ -100,7 +100,7 @@ public class UserRepository : IUserRepository
     /// <returns></returns>
     public async Task<int> GetUserIdAsync(string username)
     {
-        return await _context.TestUser.AsNoTracking().Where(x => x.Username == username).Select(x => x.UserId)
+        return await _context.Users.AsNoTracking().Where(x => x.Username == username).Select(x => x.UserId)
             .FirstAsync();
     }
 
@@ -108,8 +108,8 @@ public class UserRepository : IUserRepository
     /// 获取用户列表
     /// </summary>
     /// <returns></returns>
-    public async Task<List<UserInfo>> GetUserListAsync()
+    public async Task<List<User>> GetUserListAsync()
     {
-        return await _context.TestUser.AsNoTracking().ToListAsync();
+        return await _context.Users.AsNoTracking().ToListAsync();
     }
 }

@@ -12,7 +12,7 @@ public static class TokenWhiteList
     /// Key - Token
     /// Value - 用户ID,过期时间
     /// </summary>
-    private static readonly ConcurrentDictionary<string, (int, DateTime)> TokenDictionary = new();
+    private readonly static ConcurrentDictionary<string, (int, DateTime)> TokenDictionary = new();
 
     /// <summary>
     /// 添加Token

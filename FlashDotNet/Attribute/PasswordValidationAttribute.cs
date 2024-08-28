@@ -9,14 +9,14 @@ namespace FlashDotNet.Attribute;
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
 public class PasswordValidationAttribute : ValidationAttribute
 {
-    ///<summary>
-    ///检查给定值是否为有效密码。
-    ///</summary>
-    ///<param name=“value”>要验证的值。应该是字符串</param>
-    ///<returns>如果值是有效密码，则为True，否则为false</returns>
-    public override bool IsValid(object value)
+    /// <summary>
+    /// 检查给定值是否为有效密码。
+    /// </summary>
+    /// <param name="value">要验证的值。应该是字符串</param>
+    /// <returns>如果值是有效密码，则为True，否则为false</returns>
+    public override bool IsValid(object? value)
     {
-        string password = value as string;
+        string? password = value as string;
         if (string.IsNullOrEmpty(password))
         {
             return false;
