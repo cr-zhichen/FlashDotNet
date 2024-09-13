@@ -2,6 +2,12 @@
 
 轻松上手的 DotNet Core API 快速开发框架。
 
+## 🚀 快速开始
+
+```shell
+git clone https://github.com/cr-zhichen/FlashDotNet.git && cd FlashDotNet && replace.bat
+```
+
 ## 📌 特性
 
 - 基于 `.NET 8.0`
@@ -52,7 +58,7 @@
 
 修改后的配置信息如下所示：
 
-  ```json5
+```json5
 {
     // 可选值：mysql, sqlite, sqlserver, postgresql
     // 默认值：sqlite
@@ -67,7 +73,7 @@
         "PostgreSqlConnection": "Host=127.0.0.1;Database=FlashDotNet;Username=postgres;Password=qwertyuiop"
     },
 }
-  ```
+```
 
 例如，如果希望使用 MySQL 数据库，则需要在 `DefaultConnection` 中设置为 `"mysql"` 并使用 `MySqlConnection`
 字符串。同理，对于其他数据库类型也是如此。
