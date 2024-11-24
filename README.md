@@ -79,8 +79,9 @@ git clone https://github.com/cr-zhichen/FlashDotNet.git && cd FlashDotNet && rep
 
 ### 🚀 控制器与端点
 
-所有 API 控制器已映射，且默认页面为 /index.html  
-如需访问Swagger，请访问 /swagger/index.html
+所有 API 控制器已映射，且默认页面为 `/index.html`  
+如需访问Swagger，请访问 `/swagger`  
+如需访问scalar，请访问 `/scalar/v1`
 
 ### 📁 静态文件服务
 
