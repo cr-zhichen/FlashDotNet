@@ -22,11 +22,7 @@ git clone https://github.com/cr-zhichen/FlashDotNet.git && cd FlashDotNet && rep
 使用了 Serilog 作为日志提供程序。日志记录方式如下：
 
 - 输出到控制台。
-- 记录到每日滚动文件夹：
-    - 所有日志：`Logs/AllLogs/Log.txt`
-    - 信息级别日志：`Logs/Information/Log-Information-.txt`
-    - 警告级别日志：`Logs/Warning/Log-Warning-.txt`
-    - 错误级别日志：`Logs/Error/Log-Error-.txt`
+- 记录到每日滚动文件夹：`Logs/Log.txt`
 
 ### 🌍 跨域设置
 
@@ -42,8 +38,11 @@ git clone https://github.com/cr-zhichen/FlashDotNet.git && cd FlashDotNet && rep
 
 支持 JWT 认证，并从 `appsettings.json` 中获取其配置。
 
-### 📖 Swagger API 文档
+### 📖 API 文档
 
+- 使用 Swagger 和 Scalar 生成 API 文档。
+- Swagger 生成的文档位于 `/swagger`。
+- Scalar 生成的文档位于 `/scalar/v1`。
 - API 文档已集成，并在开发环境中自动启用。
 - 文档支持 JWT Bearer 授权。
 - 已自定义了 Schema IDs 以适应项目。

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
 using Serilog;
 
 #region 应用构建器与配置
@@ -30,7 +31,9 @@ if (isDevelopment)
 // 配置Serilog
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    .WriteTo.SQLite(Path.Combine(baseDirectory, "Logs.db"))
+    .WriteTo.File(Path.Combine(baseDirectory, "Logs/Log.txt"),
+        rollingInterval: RollingInterval.Day, // 按天滚动
+        retainedFileCountLimit: 7) // 保留最近7天的日志文件
     .CreateLogger();
 
 // 如果没有wwwroot文件夹则创建
@@ -261,7 +264,7 @@ app.UseResponseCompression();
 
 #endregion
 
-#region Swagger中间件配置
+#region API文档中间件配置
 
 var isUseSwagger = (builder.Configuration.GetSection("IsUseSwagger").Get<string>() ?? nameof(UseSwaggerType.Auto))
     .ToLower();
@@ -271,6 +274,19 @@ if (isUseSwagger == nameof(UseSwaggerType.True).ToLower() ||
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+var isUseScalar = (builder.Configuration.GetSection("IsUseScalar").Get<string>() ?? nameof(UseScalarType.Auto))
+    .ToLower();
+
+if (isUseScalar == nameof(UseScalarType.True).ToLower() ||
+    (isUseScalar == nameof(UseScalarType.Auto).ToLower() && app.Environment.IsDevelopment()))
+{
+    app.UseSwagger(options =>
+    {
+        options.RouteTemplate = "/openapi/{documentName}.json";
+    });
+    app.MapScalarApiReference();
 }
 
 #endregion
