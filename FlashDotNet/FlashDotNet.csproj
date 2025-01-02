@@ -37,6 +37,8 @@
         <PackageReference Include="Scrutor" Version="5.0.2" />
         <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
         <PackageReference Include="Serilog.Sinks.SQLite" Version="6.0.0" />
+        <PackageReference Include="SkiaSharp" Version="3.116.1" />
+        <PackageReference Include="SkiaSharp.Views" Version="3.116.1" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="7.2.0"/>
         <PackageReference Include="System.Numerics.Vectors" Version="4.6.0" />
@@ -45,7 +47,6 @@
     <ItemGroup>
         <Folder Include="Build\" />
         <Folder Include="DTOs\WebSocket\Responses\" />
-        <Folder Include="Resources\" />
         <Folder Include="WS\RouteDispose\" />
     </ItemGroup>
 
