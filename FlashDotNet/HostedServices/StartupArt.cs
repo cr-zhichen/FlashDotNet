@@ -1,7 +1,7 @@
 ﻿
 using FlashDotNet.Infrastructure;
 
-namespace FlashDotNet.Utils;
+namespace FlashDotNet.HostedServices;
 
 /// <summary>
 /// 显示启动图
