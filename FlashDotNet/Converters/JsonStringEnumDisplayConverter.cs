@@ -5,73 +5,91 @@ using Newtonsoft.Json;
 namespace FlashDotNet.Converters;
 
 /// <summary>
-/// 自定义 JSON 转换器，用于将枚举类型与其显示名称（通过 <see cref="DisplayAttribute"/> 指定）进行序列化和反序列化。
+/// 自定义 JSON 转换器，用于将枚举类型序列化为其显示名称（Display Name），并反序列化回枚举值。
 /// </summary>
-/// <typeparam name="T">枚举类型，必须为值类型且继承自 <see cref="System.Enum"/>。</typeparam>
-public class JsonStringEnumDisplayConverter<T> : JsonConverter where T:struct, System.Enum
+public class JsonStringEnumDisplayConverter : JsonConverter
 {
     /// <summary>
-    /// 将枚举值序列化为其显示名称。
+    /// 确定此转换器是否可以处理指定类型的对象。
     /// </summary>
-    /// <param name="writer">用于写入 JSON 数据的 <see cref="JsonWriter"/>。</param>
-    /// <param name="value">要序列化的枚举值。</param>
-    /// <param name="serializer">用于序列化的 <see cref="JsonSerializer"/>。</param>
-    /// <exception cref="JsonSerializationException">当传入的值不是有效的枚举值时抛出。</exception>
-    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    /// <param name="objectType">要检查的对象类型。</param>
+    /// <returns>如果对象类型是枚举类型，则返回 true；否则返回 false。</returns>
+    public override bool CanConvert(Type objectType)
     {
-        if (value is T enumValue)
-        {
-            var enumType = typeof(T);
-            var field = enumType.GetField(enumValue.ToString());
-
-            // 获取枚举字段的 DisplayAttribute 特性
-            var displayAttribute = field?.GetCustomAttribute<DisplayAttribute>();
-            // 如果存在 DisplayAttribute，则使用其 Name 属性作为显示名称，否则使用枚举值的字符串表示
-            var displayName = displayAttribute != null ? displayAttribute.Name : enumValue.ToString();
-
-            writer.WriteValue(displayName);
-        }
-        else
-        {
-            throw new JsonSerializationException("无效的枚举值");
-        }
+        // 如果是可空类型，获取其基础类型
+        var type = Nullable.GetUnderlyingType(objectType) ?? objectType;
+        return type.IsEnum;
     }
 
     /// <summary>
-    /// 将显示名称反序列化为枚举值。
+    /// 将枚举值序列化为其显示名称（Display Name）。
     /// </summary>
-    /// <param name="reader">用于读取 JSON 数据的 <see cref="JsonReader"/>。</param>
-    /// <param name="objectType">目标对象的类型。</param>
+    /// <param name="writer">用于写入 JSON 的 JsonWriter。</param>
+    /// <param name="value">要序列化的枚举值。</param>
+    /// <param name="serializer">调用此方法的 JsonSerializer。</param>
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        if (value == null)
+        {
+            writer.WriteNull();
+            return;
+        }
+
+        var enumType = value.GetType();
+        var enumName = System.Enum.GetName(enumType, value);
+        if (enumName != null)
+        {
+            var field = enumType.GetField(enumName);
+            var displayAttribute = field?.GetCustomAttribute<DisplayAttribute>();
+            var displayName = displayAttribute != null ? displayAttribute.Name : enumName;
+            writer.WriteValue(displayName);
+            return;
+        }
+
+        throw new JsonSerializationException($"无法识别的枚举值: {value}");
+    }
+
+    /// <summary>
+    /// 将显示名称（Display Name）反序列化为枚举值。
+    /// </summary>
+    /// <param name="reader">用于读取 JSON 的 JsonReader。</param>
+    /// <param name="objectType">目标枚举类型。</param>
     /// <param name="existingValue">现有的对象值。</param>
-    /// <param name="serializer">用于反序列化的 <see cref="JsonSerializer"/>。</param>
+    /// <param name="serializer">调用此方法的 JsonSerializer。</param>
     /// <returns>反序列化后的枚举值。</returns>
-    /// <exception cref="JsonSerializationException">当显示名称为空或无法转换为枚举值时抛出。</exception>
     public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
-        var displayName = reader.Value?.ToString();
-        if (displayName == null)
-            throw new JsonSerializationException($"值为空，无法转换为 {typeof(T).Name}。");
+        bool isNullable = Nullable.GetUnderlyingType(objectType) != null;
+        var enumType = Nullable.GetUnderlyingType(objectType) ?? objectType;
 
-        // 遍历枚举类型的所有字段，查找与显示名称匹配的枚举值
-        foreach (var field in typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static))
+        if (reader.TokenType == JsonToken.Null)
+        {
+            if (isNullable)
+                return null;
+            throw new JsonSerializationException($"无法将 null 转换为非空枚举类型 {enumType.Name}.");
+        }
+
+        if (reader.TokenType != JsonToken.String)
+            throw new JsonSerializationException($"错误的令牌类型: {reader.TokenType}. 预期: String.");
+
+        var displayName = reader.Value?.ToString();
+        if (string.IsNullOrEmpty(displayName))
+            throw new JsonSerializationException($"值为空，无法转换为枚举类型 {enumType.Name}.");
+
+        foreach (var field in enumType.GetFields(BindingFlags.Public | BindingFlags.Static))
         {
             var displayAttribute = field.GetCustomAttribute<DisplayAttribute>();
-            if (displayAttribute != null && displayAttribute.Name.Equals(displayName, StringComparison.OrdinalIgnoreCase))
+            if (displayAttribute?.Name != null && displayAttribute.Name.Equals(displayName, StringComparison.OrdinalIgnoreCase))
             {
-                return (T)field.GetValue(null)!;
+                return System.Enum.Parse(enumType, field.Name);
+            }
+
+            if (field.Name.Equals(displayName, StringComparison.OrdinalIgnoreCase))
+            {
+                return System.Enum.Parse(enumType, field.Name);
             }
         }
 
-        throw new JsonSerializationException($"无法将 '{displayName}' 转换为枚举类型 {typeof(T).Name}。");
-    }
-
-    /// <summary>
-    /// 确定当前转换器是否可以处理指定的类型。
-    /// </summary>
-    /// <param name="objectType">要检查的类型。</param>
-    /// <returns>如果类型为 <typeparamref name="T"/>，则返回 <c>true</c>；否则返回 <c>false</c>。</returns>
-    public override bool CanConvert(Type objectType)
-    {
-        return objectType == typeof(T);
+        throw new JsonSerializationException($"无法将 '{displayName}' 转换为枚举类型 {enumType.Name}.");
     }
 }

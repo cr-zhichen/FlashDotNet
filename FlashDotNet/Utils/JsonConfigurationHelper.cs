@@ -1,5 +1,4 @@
 ﻿using FlashDotNet.Converters;
-using FlashDotNet.Enum;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -7,7 +6,7 @@ using Newtonsoft.Json.Serialization;
 namespace FlashDotNet.Utils;
 
 /// <summary>
-/// Json 配置帮助类
+/// Json配置帮助类
 /// </summary>
 public static class JsonConfigurationHelper
 {
@@ -21,8 +20,8 @@ public static class JsonConfigurationHelper
         {
             Converters = new List<JsonConverter>
             {
-                new JsonStringEnumDisplayConverter<Code>(),
-                new JsonStringEnumDisplayConverter<UserRole>(),
+                // 注册通用的枚举转换器
+                new JsonStringEnumDisplayConverter()
             },
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             NullValueHandling = NullValueHandling.Ignore,
