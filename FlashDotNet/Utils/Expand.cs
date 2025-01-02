@@ -137,6 +137,17 @@ public static class Expand
         return double.TryParse(str, out var result) ? result : throw new Exception("string转换为double失败");
     }
 
+    /// <summary>
+    /// string 转Guid
+    /// </summary>
+    /// <param name="str"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public static Guid ToGuid(this string str)
+    {
+        return Guid.TryParse(str, out var result) ? result : throw new Exception("string转换为Guid失败");
+    }
+
     #endregion
 
     #region 字符串格式判断
@@ -550,6 +561,28 @@ public static class Expand
         {
             onFinally?.Invoke();
         }
+    }
+
+    #endregion
+
+    #region 查询相关
+
+    /// <summary>
+    /// 将查询结果转换为分页列表。
+    /// </summary>
+    /// <typeparam name="T">查询结果的类型。</typeparam>
+    /// <param name="query">要分页的查询。</param>
+    /// <param name="pageIndex">页码，从1开始。</param>
+    /// <param name="pageSize">每页的记录数。</param>
+    /// <returns>分页后的查询结果。</returns>
+    public static IQueryable<T> ToPagedListAsync<T>(
+        this IQueryable<T> query,
+        int pageIndex,
+        int pageSize)
+    {
+        return query
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize);
     }
 
     #endregion
