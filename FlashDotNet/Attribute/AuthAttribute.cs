@@ -55,7 +55,7 @@ public class AuthAttribute : ActionFilterAttribute
                 Message = "Token验证失败"
             };
 
-            context.Result = new JsonResult(errorObject) { StatusCode = 200 };
+            context.Result = new JsonResult(errorObject, JsonConfigurationHelper.GetDefaultSettings()) { StatusCode = 200 };
             return;
         }
 

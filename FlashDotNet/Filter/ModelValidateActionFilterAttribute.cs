@@ -1,5 +1,6 @@
 ﻿using FlashDotNet.DTOs;
 using FlashDotNet.Enum;
+using FlashDotNet.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
@@ -35,10 +36,7 @@ public class ModelValidateActionFilterAttribute : ActionFilterAttribute
                 StatusCode = StatusCodes.Status200OK,
                 // 设置返回格式
                 ContentType = "application/json;charset=utf-8",
-                Content = JsonConvert.SerializeObject(result, new JsonSerializerSettings
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                })
+                Content = JsonConvert.SerializeObject(result, JsonConfigurationHelper.GetDefaultSettings())
             };
         }
     }

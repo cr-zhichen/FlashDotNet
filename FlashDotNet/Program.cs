@@ -1,3 +1,5 @@
+#region Using
+
 using System.Reflection;
 using FlashDotNet.Data;
 using FlashDotNet.Enum;
@@ -15,6 +17,8 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 using Serilog;
+
+#endregion
 
 #region 应用构建器与配置
 
@@ -81,12 +85,16 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// 配置服务
 builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<CustomerExceptionFilter>();
-    options.Filters.Add(typeof(ModelValidateActionFilterAttribute));
-});
+    {
+        options.Filters.Add<CustomerExceptionFilter>();
+        options.Filters.Add(typeof(ModelValidateActionFilterAttribute));
+    })
+    // 使用 Newtonsoft.Json 作为默认的 JSON 序列化器
+    .AddNewtonsoftJson(options => options.ApplyDefaultSettings());
 
+// 禁用自动模型状态验证
 builder.Services.Configure<ApiBehaviorOptions>(opt => opt.SuppressModelStateInvalidFilter = true);
 
 #endregion
@@ -117,45 +125,46 @@ builder.Services.Configure<TokenOptions>(options =>
 #region Swagger配置
 
 builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new()
     {
-        Title = "FlashDotNet",
-        Version = "v1",
-        Description = @"
+        c.SwaggerDoc("v1", new()
+        {
+            Title = "FlashDotNet",
+            Version = "v1",
+            Description = @"
 基于.NET8.0 的的快速开发框架
 <br/>
 <a href='/'>前端页面</a>
 <a href='https://github.com/cr-zhichen/FlashDotNet'>项目地址</a>
 ",
-    });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "使用 Bearer 方案的 JWT 授权标头。",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Scheme = "bearer",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT"
-    });
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    c.IncludeXmlComments(xmlPath);
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+        });
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-            },
-            new List<string>()
-        }
-    });
+            Description = "使用 Bearer 方案的 JWT 授权标头。",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Scheme = "bearer",
+            Type = SecuritySchemeType.Http,
+            BearerFormat = "JWT"
+        });
+        var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+        c.IncludeXmlComments(xmlPath);
 
-    // 使用全命名空间的类名作为SchemaId
-    // c.CustomSchemaIds(x => x.FullName);
-});
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                },
+                new List<string>()
+            }
+        });
+
+        // 使用全命名空间的类名作为SchemaId
+        // c.CustomSchemaIds(x => x.FullName);
+    })
+    .AddSwaggerGenNewtonsoftSupport();
 
 #endregion
 
@@ -282,10 +291,7 @@ var isUseScalar = (builder.Configuration.GetSection("IsUseScalar").Get<string>()
 if (isUseScalar == nameof(UseScalarType.True).ToLower() ||
     (isUseScalar == nameof(UseScalarType.Auto).ToLower() && app.Environment.IsDevelopment()))
 {
-    app.UseSwagger(options =>
-    {
-        options.RouteTemplate = "/openapi/{documentName}.json";
-    });
+    app.UseSwagger(options => { options.RouteTemplate = "/openapi/{documentName}.json"; });
     app.MapScalarApiReference();
 }
 
