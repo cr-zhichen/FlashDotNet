@@ -46,8 +46,16 @@ public class AuthRouteHandlers : IWsRouteHandler
         // 返回认证结果
         if (!isValid)
         {
-            throw new ArgumentException(errorMessage);
+            await userConnection.SendMessageAsync(new WsError<object>
+            {
+                Route = WsRoute.Auth,
+                Message = errorMessage ?? "认证失败",
+                Data = null
+            });
+            await userConnection.DisconnectAsync();
         }
+
+        userConnection.Token = authReq.Token;
 
         await userConnection.SendMessageAsync(new WsOk<object>
         {
