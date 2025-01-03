@@ -102,23 +102,27 @@ public class UserService : IUserService
     }
 
     /// <inheritdoc />
-    public async Task<IRe<List<GetUserListResponse>>> GetUserListAsync()
+    public async Task<IRe<GetUserListResponse>> GetUserListAsync(GetUserListRequest request)
     {
         // 获取用户列表
-        var userList = await _userRepository.GetUserListAsync();
+        var userList = await _userRepository.GetUserListAsync(request.PageIndex, request.PageSize);
 
         // 转换为DTO
-        var response = userList.Select(x => new GetUserListResponse
+        var response = userList.list.Select(x => new GetUserInfoResponse
         {
             UserId = x.UserId,
             Username = x.Username,
             Role = x.RoleType,
         }).ToList();
 
-        return new Ok<List<GetUserListResponse>>
+        return new Ok<GetUserListResponse>
         {
             Message = "获取成功",
-            Data = response
+            Data = new GetUserListResponse()
+            {
+                Total = userList.total,
+                Data = response
+            }
         };
     }
 

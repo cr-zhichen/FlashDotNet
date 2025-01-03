@@ -2,6 +2,7 @@
 using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Models;
+using FlashDotNet.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace FlashDotNet.Repositories.UserRepository;
@@ -75,11 +76,16 @@ public class UserRepository : IUserRepository
     }
 
     /// <inheritdoc />
-    public async Task<List<User>> GetUserListAsync()
+    public async Task<(int total, List<User> list)> GetUserListAsync(int pageIndex, int pageSize)
     {
-        return await _context.Users
+        var total = await _context.Users.CountAsync();
+
+        var list = await _context.Users
             .AsNoTracking()
+            .ToPagedListAsync(pageIndex, pageSize)
             .ToListAsync();
+
+        return (total, list);
     }
 
     #region 错误处理

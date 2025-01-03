@@ -26,8 +26,9 @@ public interface IUserService
     /// <summary>
     /// 获取用户列表
     /// </summary>
+    /// <param name="request">获取用户请求</param>
     /// <returns>用户列表响应</returns>
-    Task<IRe<List<GetUserListResponse>>> GetUserListAsync();
+    Task<IRe<GetUserListResponse>> GetUserListAsync(GetUserListRequest request);
 
     /// <summary>
     /// 获取当前用户信息

@@ -56,9 +56,9 @@ public class UserController : ControllerBase
     /// <returns></returns>
     [Auth(UserRole.Admin)]
     [HttpPost("get-user-list")]
-    public async Task<IRe<List<GetUserListResponse>>> GetUserListAsync()
+    public async Task<IRe<GetUserListResponse>> GetUserListAsync(GetUserListRequest request)
     {
-        return await _userService.GetUserListAsync();
+        return await _userService.GetUserListAsync(request);
     }
 
     /// <summary>

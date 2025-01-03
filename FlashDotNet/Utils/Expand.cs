@@ -580,6 +580,11 @@ public static class Expand
         int pageIndex,
         int pageSize)
     {
+        if (pageIndex <= 0 || pageSize <= 0)
+        {
+            return query;
+        }
+
         return query
             .Skip((pageIndex - 1) * pageSize)
             .Take(pageSize);

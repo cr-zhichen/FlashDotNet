@@ -36,3 +36,11 @@ public class LoginRequest
     [PasswordValidation(ErrorMessage = "密码应由以下三种字符类型中的任意两种组成：数字、字母、特殊符号")]
     public string Password { get; set; } = "";
 }
+
+/// <summary>
+/// 获取用户列表
+/// </summary>
+public class GetUserListRequest : PagedRequests
+{
+
+}

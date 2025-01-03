@@ -48,6 +48,8 @@ public interface IUserRepository
     /// <summary>
     /// 获取用户列表
     /// </summary>
+    /// <param name="pageIndex">页码</param>
+    /// <param name="pageSize">每页大小</param>
     /// <returns></returns>
-    Task<List<User>> GetUserListAsync();
+    Task<(int total, List<User> list)> GetUserListAsync(int pageIndex, int pageSize);
 }

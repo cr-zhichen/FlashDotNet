@@ -63,24 +63,8 @@ public class LoginResponse
 /// <summary>
 /// 获取用户列表 返回响应体
 /// </summary>
-public class GetUserListResponse
+public class GetUserListResponse : PagedResponse<GetUserInfoResponse>
 {
-    /// <summary>
-    /// 用户ID
-    /// </summary>
-    public required Guid UserId { get; set; }
-
-    /// <summary>
-    /// 用户名
-    /// </summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public required string Username { get; set; } = null!;
-
-    /// <summary>
-    /// 用户角色
-    /// </summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public required UserRole Role { get; set; } = UserRole.User;
 }
 
 /// <summary>
