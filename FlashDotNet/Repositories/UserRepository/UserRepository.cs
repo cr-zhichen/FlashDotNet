@@ -28,7 +28,7 @@ public class UserRepository : IUserRepository
     }
 
     /// <inheritdoc />
-    public async Task<User> CreateUserAsync(string username, string argon2Password, UserRole role = UserRole.User)
+    public async Task<User> CreateUserAsync(string username, string argon2Password, UserRole role = UserRole.Base)
     {
         // 判断用户是否存在
         if (await _context.Users.AnyAsync(x => x.Username == username))

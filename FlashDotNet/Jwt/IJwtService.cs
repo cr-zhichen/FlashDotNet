@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using FlashDotNet.Data;
+using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Services.CacheService;
 using FlashDotNet.Utils;
@@ -29,7 +30,7 @@ public interface IJwtService
     /// <param name="token"></param>
     /// <param name="requiredRole"></param>
     /// <returns></returns>
-    Task<(bool IsValid, string? ErrorMessage)> ValidateTokenAsync(string token, string requiredRole = "");
+    Task<(bool IsValid, string? ErrorMessage)> ValidateTokenAsync(string token, UserRole? requiredRole = null);
 
     /// <summary>
     /// 获取令牌中的用户信息
@@ -94,7 +95,7 @@ public class JwtService : IJwtService
         // 添加一些需要的键值对
         Claim[] claims =
         [
-            new Claim("user_info", JsonConvert.SerializeObject(userInfo))
+            new Claim("user_info", JsonConvert.SerializeObject(userInfo, JsonConfigurationHelper.GetDefaultSettings()))
         ];
 
         var keyBytes = Encoding.UTF8.GetBytes(_tokenOptions.SecretKey);
@@ -126,7 +127,7 @@ public class JwtService : IJwtService
     /// <param name="token"></param>
     /// <param name="requiredRole"></param>
     /// <returns></returns>
-    public async Task<(bool IsValid, string? ErrorMessage)> ValidateTokenAsync(string token, string requiredRole = "")
+    public async Task<(bool IsValid, string? ErrorMessage)> ValidateTokenAsync(string token, UserRole? requiredRole = null)
     {
         try
         {
@@ -136,7 +137,7 @@ public class JwtService : IJwtService
                 return (false, "无效的令牌：未找到用户信息。");
             }
 
-            if (!string.IsNullOrEmpty(requiredRole) && userInfo.Role != requiredRole)
+            if (requiredRole is not null && (userInfo.Role & requiredRole) != requiredRole)
             {
                 return (false, $"无效的令牌：需要 {requiredRole} 角色。");
             }
@@ -193,7 +194,7 @@ public class JwtService : IJwtService
             var jwtToken = (JwtSecurityToken)validatedToken;
             var userInfoClaim = jwtToken.Claims.First(claim => claim.Type == "user_info");
 
-            UserInfoTokenData userInfo = JsonConvert.DeserializeObject<UserInfoTokenData>(userInfoClaim.Value) ?? throw new Exception("无法解析用户信息");
+            UserInfoTokenData userInfo = JsonConvert.DeserializeObject<UserInfoTokenData>(userInfoClaim.Value, JsonConfigurationHelper.GetDefaultSettings()) ?? throw new Exception("无法解析用户信息");
             return Task.FromResult<UserInfoTokenData?>(userInfo);
         }
         catch
@@ -227,4 +228,3 @@ public class JwtService : IJwtService
         return Task.CompletedTask;
     }
 }
-

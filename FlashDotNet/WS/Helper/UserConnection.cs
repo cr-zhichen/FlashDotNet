@@ -45,7 +45,7 @@ public class UserConnection
             return;
         }
 
-        var (isValid, errorMessage) = await jwtService.ValidateTokenAsync(Token, userRole?.GetDisplayName() ?? "");
+        var (isValid, errorMessage) = await jwtService.ValidateTokenAsync(Token, userRole);
         if (!isValid)
         {
             await SendMessageAsync(new WsError<object>

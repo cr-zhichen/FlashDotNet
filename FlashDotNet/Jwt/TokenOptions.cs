@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using FlashDotNet.Enum;
 
 namespace FlashDotNet.Jwt;
 
@@ -43,7 +44,7 @@ public class UserInfoTokenData
     /// 角色
     /// </summary>
     [JsonPropertyName("role")]
-    public required string Role { get; set; }
+    public required UserRole Role { get; set; }
 
     /// <summary>
     /// Token版本号

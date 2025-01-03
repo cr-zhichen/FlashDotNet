@@ -21,7 +21,7 @@ public interface IUserRepository
     /// <param name="argon2Password"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    Task<User> CreateUserAsync(string username, string argon2Password, UserRole role = UserRole.User);
+    Task<User> CreateUserAsync(string username, string argon2Password, UserRole role = UserRole.Base);
 
     /// <summary>
     /// 判断密码是否正确

@@ -12,7 +12,7 @@ namespace FlashDotNet.Attribute;
 /// </summary>
 public class AuthAttribute : ActionFilterAttribute
 {
-    private readonly UserRole? _requiredRole;
+    private readonly UserRole _requiredRole;
 
     /// <summary>
     /// 验证JWT Token
@@ -28,7 +28,7 @@ public class AuthAttribute : ActionFilterAttribute
     /// </summary>
     public AuthAttribute()
     {
-        _requiredRole = null;
+        _requiredRole = UserRole.None;
     }
 
     /// <summary>
@@ -43,9 +43,7 @@ public class AuthAttribute : ActionFilterAttribute
         // 使用服务定位器来获取 IJwtService
         var jwtService = context.HttpContext.RequestServices.GetService<IJwtService>();
 
-        string requiredRoleString = _requiredRole?.GetDisplayName() ?? "";
-
-        var isValid = await jwtService!.ValidateTokenAsync(token, requiredRoleString);
+        var isValid = await jwtService!.ValidateTokenAsync(token, _requiredRole);
 
         if (!isValid.IsValid)
         {

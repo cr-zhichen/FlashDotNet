@@ -66,7 +66,7 @@ public class UserController : ControllerBase
     /// 获取当前用户信息
     /// </summary>
     /// <returns></returns>
-    [Auth]
+    [Auth(UserRole.None)]
     [HttpPost("get-user-info")]
     public async Task<IRe<GetUserInfoResponse>> GetUserInfoAsync()
     {
@@ -77,7 +77,7 @@ public class UserController : ControllerBase
     /// 退出登录（吊销令牌）
     /// </summary>
     /// <returns></returns>
-    [Auth]
+    [Auth(UserRole.None)]
     [HttpPost("get-logout")]
     public async Task<IRe<object>> LogoutAsync()
     {

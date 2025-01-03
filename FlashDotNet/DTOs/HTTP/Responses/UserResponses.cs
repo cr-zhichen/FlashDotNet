@@ -22,7 +22,7 @@ public class RegisterResponse
     /// 用户角色
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public required UserRole Role { get; set; } = UserRole.User;
+    public required UserRole Role { get; set; } = UserRole.Base;
 
     /// <summary>
     /// 令牌
@@ -51,7 +51,7 @@ public class LoginResponse
     /// 用户角色
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public required UserRole Role { get; set; } = UserRole.User;
+    public required UserRole Role { get; set; } = UserRole.Base;
 
     /// <summary>
     /// 令牌
@@ -87,5 +87,5 @@ public class GetUserInfoResponse
     /// 用户角色
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public required UserRole Role { get; set; } = UserRole.User;
+    public required UserRole Role { get; set; } = UserRole.Base;
 }

@@ -30,7 +30,7 @@ public class UserService : IUserService
     /// <inheritdoc />
     public async Task<IRe<RegisterResponse>> RegisterAsync(RegisterRequest request)
     {
-        UserRole role = UserRole.User;
+        UserRole role = UserRole.Base;
 
         //如果数据库中没有用户，那么注册的第一个用户就是管理员
         if (await _userRepository.IsEmptyAsync())
@@ -46,7 +46,7 @@ public class UserService : IUserService
         var token = await _jwtService.CreateTokenAsync(new UserInfoTokenData()
         {
             UserId = user.UserId.ToString(),
-            Role = role.GetDisplayName(),
+            Role = role,
             Version = user.TokenVersion.ToString()
         });
 
@@ -84,7 +84,7 @@ public class UserService : IUserService
         var token = await _jwtService.CreateTokenAsync(new UserInfoTokenData()
         {
             UserId = user.UserId.ToString(),
-            Role = user.RoleType.GetDisplayName(),
+            Role = user.RoleType,
             Version = user.TokenVersion.ToString()
         });
 
