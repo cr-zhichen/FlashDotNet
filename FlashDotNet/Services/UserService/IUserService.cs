@@ -12,27 +12,27 @@ public interface IUserService
     /// <summary>
     /// 用户注册
     /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
+    /// <param name="request">注册请求</param>
+    /// <returns>注册响应</returns>
     Task<IRe<RegisterResponse>> RegisterAsync(RegisterRequest request);
 
     /// <summary>
     /// 用户登录
     /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
+    /// <param name="request">登录请求</param>
+    /// <returns>登录响应</returns>
     Task<IRe<LoginResponse>> LoginAsync(LoginRequest request);
 
     /// <summary>
     /// 获取用户列表
     /// </summary>
-    /// <returns></returns>
+    /// <returns>用户列表响应</returns>
     Task<IRe<List<GetUserListResponse>>> GetUserListAsync();
 
     /// <summary>
     /// 获取当前用户信息
     /// </summary>
-    /// <param name="token"></param>
-    /// <returns></returns>
-    Task<IRe<GetUserInfoResponse>> GetUserInfoAsync(string token);
+    /// <param name="userId">用户ID</param>
+    /// <returns>用户信息响应</returns>
+    Task<IRe<GetUserInfoResponse>> GetUserInfoAsync(Guid userId);
 }

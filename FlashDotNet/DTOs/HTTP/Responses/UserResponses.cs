@@ -8,22 +8,27 @@ namespace FlashDotNet.DTOs.HTTP.Responses;
 public class RegisterResponse
 {
     /// <summary>
+    /// 用户ID
+    /// </summary>
+    public required Guid UserId { get; set; }
+
+    /// <summary>
     /// 用户名
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public string Username { get; set; } = null!;
+    public required string Username { get; set; } = null!;
 
     /// <summary>
     /// 用户角色
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public string Role { get; set; } = UserRole.User.ToString();
+    public required UserRole Role { get; set; } = UserRole.User;
 
     /// <summary>
     /// 令牌
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public string Token { get; set; } = null!;
+    public required string Token { get; set; } = null!;
 }
 
 /// <summary>
@@ -32,22 +37,27 @@ public class RegisterResponse
 public class LoginResponse
 {
     /// <summary>
+    /// 用户ID
+    /// </summary>
+    public required Guid UserId { get; set; }
+
+    /// <summary>
     /// 用户名
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public string Username { get; set; } = null!;
+    public required string Username { get; set; } = null!;
 
     /// <summary>
     /// 用户角色
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public string Role { get; set; } = null!;
+    public required UserRole Role { get; set; } = UserRole.User;
 
     /// <summary>
     /// 令牌
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public string Token { get; set; } = null!;
+    public required string Token { get; set; } = null!;
 }
 
 /// <summary>
@@ -56,22 +66,21 @@ public class LoginResponse
 public class GetUserListResponse
 {
     /// <summary>
-    /// 用户id
+    /// 用户ID
     /// </summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public int UserId { get; set; }
+    public required Guid UserId { get; set; }
 
     /// <summary>
     /// 用户名
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public string Username { get; set; } = null!;
+    public required string Username { get; set; } = null!;
 
     /// <summary>
     /// 用户角色
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public string Role { get; set; } = null!;
+    public required UserRole Role { get; set; } = UserRole.User;
 }
 
 /// <summary>
@@ -80,20 +89,19 @@ public class GetUserListResponse
 public class GetUserInfoResponse
 {
     /// <summary>
-    /// 用户id
+    /// 用户ID
     /// </summary>
-    // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public int UserId { get; set; }
+    public required Guid UserId { get; set; }
 
     /// <summary>
     /// 用户名
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public string Username { get; set; } = null!;
+    public required string Username { get; set; } = null!;
 
     /// <summary>
     /// 用户角色
     /// </summary>
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
-    public string Role { get; set; } = null!;
+    public required UserRole Role { get; set; } = UserRole.User;
 }

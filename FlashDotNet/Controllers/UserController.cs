@@ -3,7 +3,9 @@ using FlashDotNet.DTOs;
 using FlashDotNet.DTOs.HTTP.Requests;
 using FlashDotNet.DTOs.HTTP.Responses;
 using FlashDotNet.Enum;
+using FlashDotNet.Jwt;
 using FlashDotNet.Services.UserService;
+using FlashDotNet.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FlashDotNet.Controllers;
@@ -15,18 +17,16 @@ namespace FlashDotNet.Controllers;
 [Route("api/user")]
 public class UserController : ControllerBase
 {
-    /// <summary>
-    /// 用户服务
-    /// </summary>
     private readonly IUserService _userService;
+    private readonly IJwtService _jwtService;
 
     /// <summary>
     /// 构造函数
     /// </summary>
-    /// <param name="userService"></param>
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, IJwtService jwtService)
     {
         _userService = userService;
+        _jwtService = jwtService;
     }
 
     /// <summary>
@@ -69,8 +69,6 @@ public class UserController : ControllerBase
     [HttpPost("get-user-info")]
     public async Task<IRe<GetUserInfoResponse>> GetUserInfoAsync()
     {
-        // 获取Token
-        var token = Request.Headers["Authorization"].ToString().Split(' ').Last();
-        return await _userService.GetUserInfoAsync(token);
+        return await _userService.GetUserInfoAsync(await UserHelper.GetCurrentUserIdAsync(_jwtService, Request));
     }
 }

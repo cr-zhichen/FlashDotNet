@@ -1,7 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using FlashDotNet.Data;
 using FlashDotNet.Infrastructure;
+using FlashDotNet.Services.CacheService;
+using FlashDotNet.Utils;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -26,7 +29,7 @@ public interface IJwtService
     /// <param name="token"></param>
     /// <param name="requiredRole"></param>
     /// <returns></returns>
-    Task<bool> ValidateTokenAsync(string token, string requiredRole = "");
+    Task<(bool IsValid, string? ErrorMessage)> ValidateTokenAsync(string token, string requiredRole = "");
 
     /// <summary>
     /// 获取令牌中的用户信息
@@ -36,18 +39,11 @@ public interface IJwtService
     Task<UserInfoTokenData?> GetUserInfoAsync(string token);
 
     /// <summary>
-    /// 注销令牌
-    /// </summary>
-    /// <param name="token"></param>
-    /// <returns></returns>
-    Task LogoutAsync(string token);
-
-    /// <summary>
     /// 根据用户ID注销令牌
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task LogoutByIdAsync(int userId);
+    Task LogoutByIdAsync(string userId);
 }
 
 /// <summary>
@@ -57,18 +53,36 @@ public interface IJwtService
 public class JwtService : IJwtService
 {
     /// <summary>
-    /// 构造函数
+    /// 数据库上下文
     /// </summary>
-    /// <param name="options"></param>
-    public JwtService(IOptions<TokenOptions> options)
-    {
-        TokenOptions = options.Value;
-    }
+    private readonly AppDbContext _appDbContext;
 
     /// <summary>
     /// 令牌选项
     /// </summary>
-    private TokenOptions TokenOptions { get; }
+    private readonly TokenOptions _tokenOptions;
+
+    /// <summary>
+    /// 缓存服务
+    /// </summary>
+    private readonly ICacheService _cacheService;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public JwtService(IOptions<TokenOptions> options, AppDbContext appDbContext, ICacheService cacheService)
+    {
+        _appDbContext = appDbContext;
+        _cacheService = cacheService;
+        _tokenOptions = options.Value;
+    }
+
+    /// <summary>
+    /// Token版本号键
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    private string TokenVersionKey(string userId) => $"TokenVersion_{userId}";
 
     /// <summary>
     /// 创建令牌
@@ -83,26 +97,25 @@ public class JwtService : IJwtService
             new Claim("user_info", JsonConvert.SerializeObject(userInfo))
         ];
 
-        var keyBytes = Encoding.UTF8.GetBytes(TokenOptions.SecretKey);
+        var keyBytes = Encoding.UTF8.GetBytes(_tokenOptions.SecretKey);
         var credentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes),
             SecurityAlgorithms.HmacSha256);
 
         // 判断是否设置永不过期
         DateTime? expires = null;
-        if (TokenOptions.ExpireMinutes != -1)
+        if (_tokenOptions.ExpireMinutes != -1)
         {
-            expires = DateTime.UtcNow.AddMinutes(TokenOptions.ExpireMinutes);
+            expires = DateTime.UtcNow.AddMinutes(_tokenOptions.ExpireMinutes);
         }
 
         var jwtSecurityToken = new JwtSecurityToken(
-            issuer: TokenOptions.Issuer, // 签发者
-            audience: TokenOptions.Audience, // 接收者
+            issuer: _tokenOptions.Issuer, // 签发者
+            audience: _tokenOptions.Audience, // 接收者
             claims: claims, // payload
             expires: expires, // 过期时间, 当 ExpireMinutes 为 -1 时，此处为 null，代表无过期时间
             signingCredentials: credentials); // 令牌
 
         var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-        TokenWhiteList.AddToken(userInfo.UserId, token, expires ?? DateTime.MaxValue);
 
         return Task.FromResult(token);
     }
@@ -113,36 +126,46 @@ public class JwtService : IJwtService
     /// <param name="token"></param>
     /// <param name="requiredRole"></param>
     /// <returns></returns>
-    public Task<bool> ValidateTokenAsync(string token, string requiredRole = "")
+    public async Task<(bool IsValid, string? ErrorMessage)> ValidateTokenAsync(string token, string requiredRole = "")
     {
-        //判断令牌是否在缓存中
-        var isValid = TokenWhiteList.ContainsToken(token);
-
-        if (!isValid)
-        {
-            return Task.FromResult(false);
-        }
-
         try
         {
-            if (requiredRole == "")
+            UserInfoTokenData? userInfo = await GetUserInfoAsync(token);
+            if (userInfo == null)
             {
-                return Task.FromResult(true);
+                return (false, "无效的令牌：未找到用户信息。");
             }
 
-            UserInfoTokenData userInfo = GetUserInfoAsync(token).Result!;
-
-            if (userInfo.Role != requiredRole)
+            if (!string.IsNullOrEmpty(requiredRole) && userInfo.Role != requiredRole)
             {
-                return Task.FromResult(false);
+                return (false, $"无效的令牌：需要 {requiredRole} 角色。");
+            }
+
+            Guid? tokenVersion = _cacheService.Get<Guid>(TokenVersionKey(userInfo.UserId));
+
+            if (tokenVersion == null || tokenVersion == Guid.Empty)
+            {
+                var user = await _appDbContext.Users.FindAsync(userInfo.UserId.ToGuid());
+                if (user == null)
+                {
+                    return (false, "无效的令牌：未找到用户。");
+                }
+
+                tokenVersion = user.TokenVersion;
+                _cacheService.Set(TokenVersionKey(userInfo.UserId), tokenVersion);
+            }
+
+            if (userInfo.Version.ToGuid() != tokenVersion)
+            {
+                return (false, "无效的令牌：令牌版本不匹配。");
             }
         }
-        catch
+        catch (Exception ex)
         {
-            return Task.FromResult(false);
+            return (false, $"无效的令牌：{ex.Message}");
         }
 
-        return Task.FromResult(true);
+        return (true, null);
     }
 
     /// <summary>
@@ -157,11 +180,11 @@ public class JwtService : IJwtService
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            ValidateLifetime = TokenOptions.ExpireMinutes != -1,
+            ValidateLifetime = _tokenOptions.ExpireMinutes != -1,
             ValidateIssuerSigningKey = true,
-            ValidAudience = TokenOptions.Audience,
-            ValidIssuer = TokenOptions.Issuer,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TokenOptions.SecretKey))
+            ValidAudience = _tokenOptions.Audience,
+            ValidIssuer = _tokenOptions.Issuer,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.SecretKey))
         };
 
         try
@@ -170,27 +193,13 @@ public class JwtService : IJwtService
             var jwtToken = (JwtSecurityToken)validatedToken;
             var userInfoClaim = jwtToken.Claims.First(claim => claim.Type == "user_info");
 
-            UserInfoTokenData userInfo = JsonConvert.DeserializeObject<UserInfoTokenData>(userInfoClaim.Value) ??
-                                         new UserInfoTokenData();
-            return Task.FromResult(userInfo)!;
+            UserInfoTokenData userInfo = JsonConvert.DeserializeObject<UserInfoTokenData>(userInfoClaim.Value) ?? throw new Exception("无法解析用户信息");
+            return Task.FromResult<UserInfoTokenData?>(userInfo);
         }
         catch
         {
-            return Task.FromResult(null as UserInfoTokenData);
+            return Task.FromResult<UserInfoTokenData?>(null);
         }
-    }
-
-    /// <summary>
-    /// 注销令牌
-    /// </summary>
-    /// <param name="token"></param>
-    /// <returns></returns>
-    public Task LogoutAsync(string token)
-    {
-        //从TokenList.TokenLists中移除令牌
-        TokenWhiteList.RemoveToken(token);
-
-        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -198,10 +207,24 @@ public class JwtService : IJwtService
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    public Task LogoutByIdAsync(int userId)
+    public Task LogoutByIdAsync(string userId)
     {
-        TokenWhiteList.RemoveTokenByUserId(userId);
+        // 通过主键获取用户
+        var user = _appDbContext.Users.Find(userId.ToGuid());
+
+        // 清除缓存
+        _cacheService.Remove(TokenVersionKey(userId));
+
+        if (user != null)
+        {
+            user.TokenVersion = Guid.NewGuid();
+            _appDbContext.SaveChanges();
+
+            // 更新缓存中的TokenVersion
+            _cacheService.Set(TokenVersionKey(userId), user.TokenVersion);
+        }
 
         return Task.CompletedTask;
     }
 }
+

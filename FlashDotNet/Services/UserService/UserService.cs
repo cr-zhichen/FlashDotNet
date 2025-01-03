@@ -15,32 +15,19 @@ namespace FlashDotNet.Services.UserService;
 [AddScopedAsImplementedInterfaces]
 public class UserService : IUserService
 {
-    /// <summary>
-    /// JWT相关的服务
-    /// </summary>
     private readonly IJwtService _jwtService;
-
-    /// <summary>
-    /// 用户相关的数据库操作
-    /// </summary>
     private readonly IUserRepository _userRepository;
 
     /// <summary>
     /// 构造函数
     /// </summary>
-    /// <param name="userRepository"></param>
-    /// <param name="jwtService"></param>
     public UserService(IUserRepository userRepository, IJwtService jwtService)
     {
         _userRepository = userRepository;
         _jwtService = jwtService;
     }
 
-    /// <summary>
-    /// 用户注册
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
+    /// <inheritdoc />
     public async Task<IRe<RegisterResponse>> RegisterAsync(RegisterRequest request)
     {
         UserRole role = UserRole.User;
@@ -58,9 +45,9 @@ public class UserService : IUserService
         //生成JWT
         var token = await _jwtService.CreateTokenAsync(new UserInfoTokenData()
         {
-            UserId = user.UserId,
-            Username = user.Username,
-            Role = role.GetDisplayName()
+            UserId = user.UserId.ToString(),
+            Role = role.GetDisplayName(),
+            Version = user.TokenVersion.ToString()
         });
 
         return new Ok<RegisterResponse>
@@ -69,17 +56,14 @@ public class UserService : IUserService
             Data = new RegisterResponse
             {
                 Username = user.Username,
-                Role = user.Role.GetDisplayName(),
-                Token = token
+                UserId = user.UserId,
+                Role = user.RoleType,
+                Token = token,
             }
         };
     }
 
-    /// <summary>
-    /// 用户登录
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
+    /// <inheritdoc />
     public async Task<IRe<LoginResponse>> LoginAsync(LoginRequest request)
     {
         // 判断密码是否正确
@@ -92,17 +76,16 @@ public class UserService : IUserService
         }
 
         //获取用户id
-        var userId = await _userRepository.GetUserIdAsync(request.Username);
+        var user = await _userRepository.GetUserAsync(request.Username);
 
-        //获取用户角色
-        var role = await _userRepository.GetUserRoleAsync(userId);
+        if (user is null) return new Error<LoginResponse>() { Message = "用户不存在" };
 
         //生成JWT
         var token = await _jwtService.CreateTokenAsync(new UserInfoTokenData()
         {
-            UserId = userId,
-            Username = request.Username,
-            Role = role.GetDisplayName()
+            UserId = user.UserId.ToString(),
+            Role = user.RoleType.GetDisplayName(),
+            Version = user.TokenVersion.ToString()
         });
 
         return new Ok<LoginResponse>
@@ -110,17 +93,15 @@ public class UserService : IUserService
             Message = "登录成功",
             Data = new LoginResponse
             {
-                Username = request.Username,
-                Role = role.GetDisplayName(),
-                Token = token
+                Username = user.Username,
+                UserId = user.UserId,
+                Role = user.RoleType,
+                Token = token,
             }
         };
     }
 
-    /// <summary>
-    /// 获取用户列表
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc />
     public async Task<IRe<List<GetUserListResponse>>> GetUserListAsync()
     {
         // 获取用户列表
@@ -131,7 +112,7 @@ public class UserService : IUserService
         {
             UserId = x.UserId,
             Username = x.Username,
-            Role = x.Role.GetDisplayName(),
+            Role = x.RoleType,
         }).ToList();
 
         return new Ok<List<GetUserListResponse>>
@@ -141,27 +122,21 @@ public class UserService : IUserService
         };
     }
 
-    /// <summary>
-    /// 获取当前用户信息
-    /// </summary>
-    /// <param name="token"></param>
-    /// <returns></returns>
-    public async Task<IRe<GetUserInfoResponse>> GetUserInfoAsync(string token)
+    /// <inheritdoc />
+    public async Task<IRe<GetUserInfoResponse>> GetUserInfoAsync(Guid userId)
     {
-        // 从令牌中获取用户名
-        var userInfo = await _jwtService.GetUserInfoAsync(token);
+        var user = await _userRepository.GetUserAsync(userId);
 
-        // 获取用户角色
-        var role = await _userRepository.GetUserRoleAsync(userInfo!.UserId);
+        if (user is null) return new Error<GetUserInfoResponse>() { Message = "用户不存在" };
 
         return new Ok<GetUserInfoResponse>
         {
             Message = "获取成功",
             Data = new GetUserInfoResponse
             {
-                UserId = userInfo.UserId,
-                Username = userInfo.Username,
-                Role = role.GetDisplayName(),
+                UserId = user.UserId,
+                Username = user.Username,
+                Role = user.RoleType
             }
         };
     }

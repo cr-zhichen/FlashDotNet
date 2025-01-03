@@ -13,37 +13,39 @@ namespace FlashDotNet.Models;
 public class User
 {
     /// <summary>
-    /// 主键 ID
+    /// 用户唯一标识ID
     /// </summary>
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("user_id")]
-    [Display(Name = "用户ID")]
-    public int UserId { get; set; }
+    public Guid UserId { get; init; } = Guid.NewGuid();
 
     /// <summary>
     /// 用户名
     /// </summary>
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "用户名不能为空")]
+    [StringLength(50, ErrorMessage = "用户名长度不能超过50个字符")]
     [Column("username")]
-    [Display(Name = "用户名")]
-    public string Username { get; set; } = null!;
+    public required string Username { get; set; }
 
     /// <summary>
-    /// 密码
+    /// 密码哈希值
     /// </summary>
-    [Required]
-    [StringLength(100)]
+    [Required(ErrorMessage = "密码不能为空")]
+    [StringLength(128, ErrorMessage = "密码哈希长度不能超过128个字符")]
     [Column("password_hash")]
-    [Display(Name = "密码")]
-    public string PasswordHash { get; set; } = null!;
+    public required string PasswordHash { get; set; }
 
     /// <summary>
-    /// 权限
+    /// 用户角色类型
     /// </summary>
-    [Required]
-    [Column("role")]
-    [Display(Name = "权限")]
-    public UserRole Role { get; set; } = UserRole.User;
+    [Required(ErrorMessage = "角色类型不能为空")]
+    [Column("role_type")]
+    public required UserRole RoleType { get; set; }
+
+    /// <summary>
+    /// Token版本号
+    /// </summary>
+    [Required(ErrorMessage = "Token版本号不能为空")]
+    [Column("token_version")]
+    public required Guid TokenVersion { get; set; }
 }

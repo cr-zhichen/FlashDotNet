@@ -32,18 +32,18 @@ public interface IUserRepository
     Task<bool> CheckPasswordAsync(string username, string argon2Password);
 
     /// <summary>
-    /// 获取用户角色
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    Task<UserRole> GetUserRoleAsync(int userId);
-
-    /// <summary>
-    /// 根据用户名获取用户id
+    /// 根据用户名获取用户
     /// </summary>
     /// <param name="username"></param>
     /// <returns></returns>
-    Task<int> GetUserIdAsync(string username);
+    Task<User?> GetUserAsync(string username);
+
+    /// <summary>
+    /// 根据用户id获取用户
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<User?> GetUserAsync(Guid userId);
 
     /// <summary>
     /// 获取用户列表

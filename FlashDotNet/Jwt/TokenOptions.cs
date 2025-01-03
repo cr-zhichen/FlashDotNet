@@ -37,17 +37,17 @@ public class UserInfoTokenData
     /// 用户ID
     /// </summary>
     [JsonPropertyName("user_id")]
-    public int UserId { get; set; }
-
-    /// <summary>
-    /// 用户名
-    /// </summary>
-    [JsonPropertyName("username")]
-    public string Username { get; set; } = null!;
+    public required string UserId { get; set; }
 
     /// <summary>
     /// 角色
     /// </summary>
     [JsonPropertyName("role")]
-    public string Role { get; set; } = null!;
+    public required string Role { get; set; }
+
+    /// <summary>
+    /// Token版本号
+    /// </summary>
+    [JsonPropertyName("version")]
+    public required string Version { get; set; }
 }

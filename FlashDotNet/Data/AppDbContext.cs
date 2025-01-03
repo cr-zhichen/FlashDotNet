@@ -19,7 +19,7 @@ public class AppDbContext : DbContext
     }
 
     /// <summary>
-    /// UserInfo 表
+    /// 用户表
     /// </summary>
     public DbSet<User> Users { get; set; }
 
@@ -41,9 +41,9 @@ public class AppDbContext : DbContext
         modelBuilder
             .Entity<User>(entity =>
             {
-                // 配置 Role 属性的转换，使用字符串存储枚举值或其他类型的角色数据
+                // 配置 Role 属性的转换，使用字符串存储枚举值
                 entity
-                    .Property(e => e.Role)
+                    .Property(e => e.RoleType)
                     .HasConversion(v => v.GetDisplayName(), v => v.FromDisplayString<UserRole>());
             });
     }

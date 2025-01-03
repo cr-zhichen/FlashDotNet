@@ -47,12 +47,13 @@ public class AuthAttribute : ActionFilterAttribute
 
         var isValid = await jwtService!.ValidateTokenAsync(token, requiredRoleString);
 
-        if (!isValid)
+        if (!isValid.IsValid)
         {
             var errorObject = new Error<object>
             {
                 Code = Code.TokenError,
-                Message = "Token验证失败"
+                Message = "token验证失败",
+                Data = isValid.ErrorMessage
             };
 
             context.Result = new JsonResult(errorObject, JsonConfigurationHelper.GetDefaultSettings()) { StatusCode = 200 };
