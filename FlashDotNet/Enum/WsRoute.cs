@@ -28,6 +28,6 @@ public enum WsRoute
     /// <summary>
     /// 鉴权
     /// </summary>
-    [Display(Name = "Auth", Description = "鉴权")]
+    [Display(Name = "auth", Description = "鉴权")]
     Auth,
 }
