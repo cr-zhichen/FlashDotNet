@@ -15,7 +15,7 @@ namespace FlashDotNet.WS;
 /// <summary>
 /// WebSocket控制器
 /// </summary>
-[AddTransient]
+[AddScoped]
 public class WebSocketController
 {
     /// <summary>
@@ -24,25 +24,18 @@ public class WebSocketController
     private readonly static ConcurrentDictionary<string, UserConnection> Connections =
         new ConcurrentDictionary<string, UserConnection>();
 
-    /// <summary>
-    /// 配置文件
-    /// </summary>
     private readonly IConfiguration _configuration;
-
-    /// <summary>
-    /// 数据库上下文
-    /// </summary>
     private readonly AppDbContext _context;
+    private readonly ILogger<WebSocketController> _logger;
 
     /// <summary>
     /// 构造函数
     /// </summary>
-    /// <param name="context"></param>
-    /// <param name="configuration"></param>
-    public WebSocketController(AppDbContext context, IConfiguration configuration)
+    public WebSocketController(AppDbContext context, IConfiguration configuration, ILogger<WebSocketController> logger)
     {
         _context = context;
         _configuration = configuration;
+        _logger = logger;
     }
 
     /// <summary>
@@ -53,9 +46,10 @@ public class WebSocketController
     public async Task HandleWebSocketAsync(HttpContext context, WebSocket webSocket)
     {
         var socketId = context.Connection.Id; // 使用连接ID作为WebSocket的唯一标识
-        Connections.TryAdd(socketId, new UserConnection(webSocket, socketId));
+        Connections.TryAdd(socketId, new UserConnection(webSocket));
 
-        var buffer = new byte[4096000];
+        var initialBufferSize = 4096; // 初始缓冲区大小
+        var buffer = new byte[initialBufferSize];
         WebSocketReceiveResult result;
 
         IWsRe<JObject> send = new WsOk<JObject>
@@ -78,15 +72,19 @@ public class WebSocketController
 
             if (result.MessageType != WebSocketMessageType.Close)
             {
+                // 如果消息大小超过当前缓冲区大小，则动态调整缓冲区大小
+                if (result.Count > buffer.Length)
+                {
+                    buffer = new byte[result.Count];
+                }
+
                 //计算消息大小 单位：KB
                 double size = Math.Round((double)result.Count / 1024, 2);
-                Console.WriteLine(
+                _logger.LogInformation(
                     $"接收到消息，大小：{size}KB，时间：{DateTime.Now:g}，连接ID：{socketId}，\n消息内容：\n{Encoding.UTF8.GetString(buffer, 0, result.Count)}\n");
 
                 // 接收到的消息
                 string receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
-
-                IWsRe<JObject> re;
 
                 try
                 {
@@ -96,7 +94,7 @@ public class WebSocketController
                 }
                 catch (Exception e)
                 {
-                    re = new WsError<JObject>
+                    IWsRe<JObject> re = new WsError<JObject>
                     {
                         Message = "请求数据错误，请检查数据是否正确",
                         Data = JObject.FromObject(e),

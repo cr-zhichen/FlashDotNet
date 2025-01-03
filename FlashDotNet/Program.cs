@@ -378,7 +378,7 @@ if (isUseScalar == nameof(UseScalarType.True).ToLower() ||
 
 var webSocketOptions = new WebSocketOptions
 {
-    KeepAliveInterval = TimeSpan.FromMinutes(2)
+    KeepAliveInterval = TimeSpan.FromSeconds(30)
 };
 
 app.UseWebSockets(webSocketOptions);
@@ -395,6 +395,7 @@ app.Use(async (context, next) =>
         else
         {
             context.Response.StatusCode = 400;
+            await context.Response.WriteAsync("Bad Request: Expected a WebSocket request.");
         }
     }
     else

@@ -13,22 +13,15 @@ public class UserConnection
     /// 构造函数
     /// </summary>
     /// <param name="webSocket"></param>
-    /// <param name="socketId"></param>
-    public UserConnection(WebSocket webSocket, string socketId)
+    public UserConnection(WebSocket webSocket)
     {
         WebSocket = webSocket;
-        SocketId = socketId;
     }
 
     /// <summary>
     /// WebSocket
     /// </summary>
     public WebSocket WebSocket { get; }
-
-    /// <summary>
-    /// 连接ID
-    /// </summary>
-    public string SocketId { get; }
 
     /// <summary>
     /// 发送消息
