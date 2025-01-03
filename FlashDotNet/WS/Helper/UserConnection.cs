@@ -1,5 +1,8 @@
 ﻿using System.Net.WebSockets;
 using FlashDotNet.DTOs.WebSocket;
+using FlashDotNet.Enum;
+using FlashDotNet.Jwt;
+using FlashDotNet.Utils;
 
 namespace FlashDotNet.WS.Helper;
 
@@ -22,6 +25,38 @@ public class UserConnection
     /// 鉴权Token，可空
     /// </summary>
     public string? Token { get; set; }
+
+    /// <summary>
+    /// 鉴权
+    /// </summary>
+    /// <returns></returns>
+    public async Task IsAuthenticated(IJwtService jwtService, UserRole? userRole = null)
+    {
+        if (Token == null)
+        {
+            await SendMessageAsync(new WsError<object>
+            {
+                Route = WsRoute.Auth,
+                Message = "未提供Token",
+                Data = null
+            });
+            await DisconnectAsync();
+
+            return;
+        }
+
+        var (isValid, errorMessage) = await jwtService.ValidateTokenAsync(Token, userRole?.GetDisplayDescription() ?? "");
+        if (!isValid)
+        {
+            await SendMessageAsync(new WsError<object>
+            {
+                Route = WsRoute.Auth,
+                Message = errorMessage ?? "认证失败",
+                Data = null
+            });
+            await DisconnectAsync();
+        }
+    }
 
     /// <summary>
     /// 发送消息

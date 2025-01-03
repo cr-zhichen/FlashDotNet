@@ -40,22 +40,9 @@ public class AuthRouteHandlers : IWsRouteHandler
             throw new ArgumentException("请求数据格式错误");
         }
 
-        // 判断 Token 是否有效
-        var (isValid, errorMessage) = await _jwtService.ValidateTokenAsync(authReq.Token);
-
-        // 返回认证结果
-        if (!isValid)
-        {
-            await userConnection.SendMessageAsync(new WsError<object>
-            {
-                Route = WsRoute.Auth,
-                Message = errorMessage ?? "认证失败",
-                Data = null
-            });
-            await userConnection.DisconnectAsync();
-        }
-
         userConnection.Token = authReq.Token;
+
+        await userConnection.IsAuthenticated(_jwtService);
 
         await userConnection.SendMessageAsync(new WsOk<object>
         {
