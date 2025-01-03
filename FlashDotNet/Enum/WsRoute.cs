@@ -5,7 +5,7 @@ namespace FlashDotNet.Enum;
 /// <summary>
 /// Ws传递的路由
 /// </summary>
-public enum Route
+public enum WsRoute
 {
     /// <summary>
     /// 失败

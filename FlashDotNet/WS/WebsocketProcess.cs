@@ -1,50 +1,82 @@
 ﻿using FlashDotNet.DTOs;
 using FlashDotNet.DTOs.WebSocket.Requests;
+using FlashDotNet.Enum;
+using FlashDotNet.Infrastructure;
 using FlashDotNet.Utils;
 using Newtonsoft.Json.Linq;
-using Route = FlashDotNet.Enum.Route;
 
 namespace FlashDotNet.WS;
 
 /// <summary>
 /// websocket请求处理
 /// </summary>
-public static class WebsocketProcess
+[AddScoped]
+public class WebsocketProcess
 {
-    private readonly static Dictionary<string, Func<UserConnection, WsReq, Task>> RouteHandlers = new Dictionary<string, Func<UserConnection, WsReq, Task>>
-    {
-        { Route.Test.GetDisplayName(), HandleTestRoute }
-    };
+    private readonly WsRouteResolver _routeResolver;
+    private readonly ILogger<WebsocketProcess> _logger;
 
     /// <summary>
-    /// 处理WebSocket请求
+    /// 构造函数
     /// </summary>
-    /// <param name="socket"></param>
-    /// <param name="data"></param>
-    public static async Task Process(UserConnection socket, WsReq data)
+    public WebsocketProcess(WsRouteResolver routeResolver, ILogger<WebsocketProcess> logger)
     {
-        if (RouteHandlers.TryGetValue(data.Route ?? "", out var handler))
-        {
-            await handler(socket, data);
-        }
-        else
-        {
-            await socket.SendMessageAsync(JObject.FromObject(new WsError<JObject>
-            {
-                Route = Route.Error.GetDisplayName(),
-                Message = "请求路由错误，请检查路由是否正确",
-            }));
-            
-            await socket.DisconnectAsync();
-        }
+        _routeResolver = routeResolver;
+        _logger = logger;
     }
 
-    private static async Task HandleTestRoute(UserConnection socket, WsReq data)
+    /// <summary>
+    /// 调用此方法去处理某个 WebSocket 请求
+    /// </summary>
+    public async Task Process(UserConnection socket, WsReq data)
     {
-        await socket.SendMessageAsync(JObject.FromObject(new WsOk<JObject>
+        try
         {
-            Route = Route.Test.GetDisplayName(),
-            Data = data.Data,
-        }));
+            WsRoute? route = null;
+
+            try
+            {
+                route = data.Route?.FromDisplayString<WsRoute>();
+            }
+            catch (Exception)
+            {
+                // 转换枚举时可能抛异常
+                _logger.LogWarning($"无法转换路由: {data.Route}");
+            }
+
+            _logger.LogInformation($"收到路由: {route}, 原字符串: {data.Route}");
+
+            // 找到对应的处理器
+            var handler = _routeResolver.GetHandler(route);
+            if (handler == null)
+            {
+                // 无对应处理器
+                var errorMsg = new WsError<JObject>
+                {
+                    Route = WsRoute.Error.GetDisplayName(),
+                    Message = "请求路由错误，请检查路由是否正确"
+                };
+                await socket.SendMessageAsync(JObject.FromObject(errorMsg));
+
+                // 看需求是否断开
+                // await socket.DisconnectAsync();
+                return;
+            }
+
+            // 调用处理器
+            await handler.HandleAsync(socket, data);
+        }
+        catch (Exception ex)
+        {
+            // 转换枚举时或处理时可能抛异常
+            _logger.LogError(ex, "WebSocket消息处理异常");
+
+            var errorMsg = new WsError<JObject>
+            {
+                Route = WsRoute.Error.GetDisplayName(),
+                Message = "服务器处理请求时发生异常"
+            };
+            await socket.SendMessageAsync(JObject.FromObject(errorMsg));
+        }
     }
 }

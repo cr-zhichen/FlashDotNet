@@ -63,7 +63,7 @@ public class WsError<T> : IWsRe<T>
     /// websocket返回的路由
     /// </summary>
     [JsonProperty("route")]
-    public string Route { get; set; } = Enum.Route.Error.GetDisplayName();
+    public string Route { get; set; } = Enum.WsRoute.Error.GetDisplayName();
 
     /// <summary>
     /// 消息

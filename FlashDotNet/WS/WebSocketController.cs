@@ -1,14 +1,13 @@
 ﻿using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
-using FlashDotNet.Data;
 using FlashDotNet.DTOs;
 using FlashDotNet.DTOs.WebSocket.Requests;
+using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Route = FlashDotNet.Enum.Route;
 
 namespace FlashDotNet.WS;
 
@@ -24,21 +23,16 @@ public class WebSocketController
     private readonly static ConcurrentDictionary<string, UserConnection> Connections
         = new ConcurrentDictionary<string, UserConnection>();
 
-    private readonly IConfiguration _configuration;
-    private readonly AppDbContext _context;
+    private readonly WebsocketProcess _websocketProcess;
     private readonly ILogger<WebSocketController> _logger;
 
     /// <summary>
     /// 构造函数
     /// </summary>
-    public WebSocketController(
-        AppDbContext context,
-        IConfiguration configuration,
-        ILogger<WebSocketController> logger)
+    public WebSocketController(ILogger<WebSocketController> logger, WebsocketProcess websocketProcess)
     {
-        _context = context;
-        _configuration = configuration;
         _logger = logger;
+        _websocketProcess = websocketProcess;
     }
 
     /// <summary>
@@ -128,11 +122,26 @@ public class WebSocketController
         try
         {
             // 尝试反序列化请求
-            WsReq req = JsonConvert.DeserializeObject<WsReq>(rawMessage)
-                        ?? throw new InvalidOperationException("反序列化后的对象为null");
+            WsReq? req = JsonConvert.DeserializeObject<WsReq>(rawMessage);
+
+            if (req == null)
+            {
+                throw new InvalidOperationException("反序列化后的对象为null");
+            }
 
             // 进行业务处理
-            await WebsocketProcess.Process(userConnection, req);
+            await _websocketProcess.Process(userConnection, req);
+        }
+        catch (JsonException jsonEx)
+        {
+            _logger.LogError(jsonEx, $"JSON解析错误，连接ID：{socketId}");
+
+            // 返回错误消息
+            var errorResponse = new WsError<JObject>
+            {
+                Message = "Json解析错误，请检查数据是否正确"
+            };
+            await SendAsync(webSocket, errorResponse);
         }
         catch (Exception ex)
         {
@@ -155,7 +164,7 @@ public class WebSocketController
     {
         var initResponse = new WsOk<JObject>
         {
-            Route = Route.First.GetDisplayName(),
+            Route = WsRoute.First.GetDisplayName(),
             Data = JObject.FromObject(new { socketId })
         };
         await SendAsync(webSocket, initResponse);
