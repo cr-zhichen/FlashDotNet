@@ -40,7 +40,8 @@ public class UserRepository : IUserRepository
             Username = username,
             PasswordHash = argon2Password,
             RoleType = role,
-            TokenVersion = Guid.NewGuid()
+            TokenVersion = Guid.NewGuid(),
+            UpdateTime = DateTime.UtcNow
         };
         _context.Users.Add(user);
 

@@ -10,7 +10,7 @@ namespace FlashDotNet.Models;
 /// </summary>
 [Table("user")]
 [Index(nameof(Username), IsUnique = true)]
-public class User
+public class User : EntityBase
 {
     /// <summary>
     /// 用户唯一标识ID
