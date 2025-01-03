@@ -36,4 +36,11 @@ public interface IUserService
     /// <param name="userId">用户ID</param>
     /// <returns>用户信息响应</returns>
     Task<IRe<GetUserInfoResponse>> GetUserInfoAsync(Guid userId);
+
+    /// <summary>
+    /// 退出登录
+    /// </summary>
+    /// <param name="userId">用户ID</param>
+    /// <returns></returns>
+    Task<IRe<object>> LogoutAsync(Guid userId);
 }

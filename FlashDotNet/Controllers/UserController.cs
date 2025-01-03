@@ -15,6 +15,7 @@ namespace FlashDotNet.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/user")]
+[Tags("用户")]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -70,5 +71,16 @@ public class UserController : ControllerBase
     public async Task<IRe<GetUserInfoResponse>> GetUserInfoAsync()
     {
         return await _userService.GetUserInfoAsync(await UserHelper.GetCurrentUserIdAsync(_jwtService, Request));
+    }
+
+    /// <summary>
+    /// 退出登录（吊销令牌）
+    /// </summary>
+    /// <returns></returns>
+    [Auth]
+    [HttpPost("get-logout")]
+    public async Task<IRe<object>> LogoutAsync()
+    {
+        return await _userService.LogoutAsync(await UserHelper.GetCurrentUserIdAsync(_jwtService, Request));
     }
 }

@@ -144,4 +144,15 @@ public class UserService : IUserService
             }
         };
     }
+
+    /// <inheritdoc />
+    public async Task<IRe<object>> LogoutAsync(Guid userId)
+    {
+        await _jwtService.LogoutByIdAsync(userId.ToString());
+
+        return new Ok<object>
+        {
+            Message = "退出登录成功"
+        };
+    }
 }
