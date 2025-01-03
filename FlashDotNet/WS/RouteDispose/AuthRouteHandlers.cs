@@ -11,23 +11,21 @@ namespace FlashDotNet.WS.RouteDispose;
 /// 认证路由处理器
 /// </summary>
 [AddScopedAsImplementedInterfaces]
-public class AuthRouteHandlers : IWsRouteHandler
+public class AuthRouteHandlers : WsRouteHandler
 {
-    private readonly IJwtService _jwtService;
-
-    /// <summary>
-    /// 构造函数
-    /// </summary>
-    public AuthRouteHandlers(IJwtService jwtService)
+    /// <inheritdoc />
+    public AuthRouteHandlers(IJwtService jwtService) : base(jwtService)
     {
-        _jwtService = jwtService;
     }
 
     /// <inheritdoc />
-    public WsRoute Route => WsRoute.Auth;
+    public override WsRoute Route => WsRoute.Auth;
 
     /// <inheritdoc />
-    public async Task HandleAsync(UserConnection userConnection, WsReq data)
+    override protected UserRole? Role => null;
+
+    /// <inheritdoc />
+    public override async Task HandleAsync(UserConnection userConnection, WsReq data)
     {
         AuthReq authReq;
 
@@ -42,7 +40,7 @@ public class AuthRouteHandlers : IWsRouteHandler
 
         userConnection.Token = authReq.Token;
 
-        await userConnection.IsAuthenticated(_jwtService);
+        await userConnection.IsAuthenticated(JwtService);
 
         await userConnection.SendMessageAsync(new WsOk<object>
         {

@@ -50,7 +50,7 @@ public class WebsocketProcess
             }
 
             // 调用处理器
-            await handler.HandleAsync(socket, data);
+            await handler.InitializeAsync(socket, data);
         }
         catch (Exception ex)
         {
