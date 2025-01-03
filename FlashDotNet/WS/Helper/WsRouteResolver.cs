@@ -2,7 +2,7 @@
 using FlashDotNet.Infrastructure;
 using FlashDotNet.WS.RouteDispose;
 
-namespace FlashDotNet.WS;
+namespace FlashDotNet.WS.Helper;
 
 /// <summary>
 /// WebSocket 路由解析器

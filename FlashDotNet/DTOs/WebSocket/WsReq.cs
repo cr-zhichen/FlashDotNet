@@ -1,4 +1,5 @@
 ﻿using FlashDotNet.Enum;
+using Newtonsoft.Json.Linq;
 
 namespace FlashDotNet.DTOs.WebSocket;
 

@@ -1,8 +1,7 @@
-﻿using System.Net.WebSockets;
-using FlashDotNet.DTOs.WebSocket;
+﻿using FlashDotNet.DTOs.WebSocket;
 using FlashDotNet.Enum;
 
-namespace FlashDotNet.WS.RouteDispose;
+namespace FlashDotNet.WS.Helper;
 
 /// <summary>
 /// 定义WebSocket路由处理接口

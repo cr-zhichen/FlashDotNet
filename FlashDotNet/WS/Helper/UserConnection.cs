@@ -1,12 +1,7 @@
 ﻿using System.Net.WebSockets;
-using System.Text;
-using FlashDotNet.DTOs;
 using FlashDotNet.DTOs.WebSocket;
-using FlashDotNet.Utils;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace FlashDotNet.WS;
+namespace FlashDotNet.WS.Helper;
 
 /// <summary>
 /// 用户连接
@@ -14,23 +9,19 @@ namespace FlashDotNet.WS;
 public class UserConnection
 {
     /// <summary>
-    /// 构造函数
-    /// </summary>
-    public UserConnection(WebSocket webSocket, string socketId)
-    {
-        WebSocket = webSocket;
-        SocketId = socketId;
-    }
-
-    /// <summary>
     /// WebSocket
     /// </summary>
-    public WebSocket WebSocket { get; }
+    public required WebSocket WebSocket { get; init; }
 
     /// <summary>
     /// SocketId
     /// </summary>
-    public string SocketId { get; }
+    public required string SocketId { get; init; }
+
+    /// <summary>
+    /// 鉴权Token，可空
+    /// </summary>
+    public string? Token { get; set; }
 
     /// <summary>
     /// 发送消息

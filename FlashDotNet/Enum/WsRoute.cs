@@ -24,4 +24,10 @@ public enum WsRoute
     /// </summary>
     [Display(Name = "first", Description = "首次连接")]
     First,
+
+    /// <summary>
+    /// 鉴权
+    /// </summary>
+    [Display(Name = "Auth", Description = "鉴权")]
+    Auth,
 }

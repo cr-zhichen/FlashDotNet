@@ -11,6 +11,7 @@ using FlashDotNet.Jwt;
 using FlashDotNet.Middleware;
 using FlashDotNet.Utils;
 using FlashDotNet.WS;
+using FlashDotNet.WS.Helper;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;

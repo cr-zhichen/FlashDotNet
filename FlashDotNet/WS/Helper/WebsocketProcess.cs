@@ -1,10 +1,8 @@
-﻿using FlashDotNet.DTOs;
-using FlashDotNet.DTOs.WebSocket;
+﻿using FlashDotNet.DTOs.WebSocket;
 using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
-using Newtonsoft.Json.Linq;
 
-namespace FlashDotNet.WS;
+namespace FlashDotNet.WS.Helper;
 
 /// <summary>
 /// websocket请求处理

@@ -1,14 +1,13 @@
 ﻿using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text;
-using FlashDotNet.DTOs;
 using FlashDotNet.DTOs.WebSocket;
 using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Utils;
 using Newtonsoft.Json;
 
-namespace FlashDotNet.WS;
+namespace FlashDotNet.WS.Helper;
 
 /// <summary>
 /// WebSocket控制器
@@ -40,7 +39,11 @@ public class WebSocketController
     public async Task HandleWebSocketAsync(HttpContext httpContext, WebSocket webSocket)
     {
         var socketId = httpContext.Connection.Id; // 使用连接ID作为WebSocket的唯一标识
-        Connections.TryAdd(socketId, new UserConnection(webSocket, socketId));
+        Connections.TryAdd(socketId, new UserConnection()
+        {
+            WebSocket = webSocket,
+            SocketId = socketId
+        });
 
         try
         {
