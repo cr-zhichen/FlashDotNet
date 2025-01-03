@@ -1,10 +1,6 @@
-﻿using FlashDotNet.Attribute;
-using FlashDotNet.DTOs;
-using FlashDotNet.DTOs.WebSocket.Requests;
+﻿using FlashDotNet.DTOs.WebSocket;
 using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
-using FlashDotNet.Utils;
-using Newtonsoft.Json.Linq;
 
 namespace FlashDotNet.WS.RouteDispose;
 
@@ -38,12 +34,13 @@ public class TestRouteHandler : IWsRouteHandler
     {
         _logger.LogInformation("[TestRoute] 开始处理请求...");
 
-        var response = new WsOk<JObject>
+        var response = new WsOk<object>
         {
-            Route = WsRoute.Test.GetDisplayName(),
-            Data = data.Data
+            Route = WsRoute.Test,
+            Data = data.Data,
+            Message = null
         };
 
-        await userConnection.SendMessageAsync(JObject.FromObject(response));
+        await userConnection.SendMessageAsync(response);
     }
 }

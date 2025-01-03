@@ -1,19 +1,19 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using FlashDotNet.Enum;
 
-namespace FlashDotNet.DTOs.WebSocket.Requests;
+namespace FlashDotNet.DTOs.WebSocket;
 
 /// <summary>
-/// 请求
+/// websocket请求
 /// </summary>
 public class WsReq
 {
     /// <summary>
     /// websocket请求的路由
     /// </summary>
-    public string? Route { get; set; }
+    public WsRoute? Route { get; set; }
 
     /// <summary>
     /// 请求数据
     /// </summary>
-    public JObject? Data { get; set; }
+    public object? Data { get; set; }
 }

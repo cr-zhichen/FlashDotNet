@@ -1,5 +1,9 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
+using FlashDotNet.DTOs;
+using FlashDotNet.DTOs.WebSocket;
+using FlashDotNet.Utils;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace FlashDotNet.WS;
@@ -31,15 +35,10 @@ public class UserConnection
     /// <summary>
     /// 发送消息
     /// </summary>
-    /// <param name="message"></param>
-    public async Task SendMessageAsync(JObject message)
+    /// <param name="data"></param>
+    public async Task SendMessageAsync<T>(IWsRe<T> data)
     {
-        if (WebSocket.State != WebSocketState.Open)
-            throw new Exception("WebSocket is not open.");
-
-        var buffer = Encoding.UTF8.GetBytes(message.ToString());
-        await WebSocket.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), WebSocketMessageType.Text, true,
-            CancellationToken.None);
+        await WebSocketController.SendAsync(WebSocket, data);
     }
 
     /// <summary>

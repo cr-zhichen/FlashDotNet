@@ -1,8 +1,7 @@
 ﻿using FlashDotNet.DTOs;
-using FlashDotNet.DTOs.WebSocket.Requests;
+using FlashDotNet.DTOs.WebSocket;
 using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
-using FlashDotNet.Utils;
 using Newtonsoft.Json.Linq;
 
 namespace FlashDotNet.WS;
@@ -32,18 +31,7 @@ public class WebsocketProcess
     {
         try
         {
-            WsRoute? route = null;
-
-            try
-            {
-                route = data.Route?.FromDisplayString<WsRoute>();
-            }
-            catch (Exception)
-            {
-                // 转换枚举时可能抛异常
-                _logger.LogWarning($"无法转换路由: {data.Route}");
-            }
-
+            WsRoute? route = data.Route;
             _logger.LogInformation($"收到路由: {route}, 原字符串: {data.Route}");
 
             // 找到对应的处理器
@@ -51,12 +39,12 @@ public class WebsocketProcess
             if (handler == null)
             {
                 // 无对应处理器
-                var errorMsg = new WsError<JObject>
+                var errorMsg = new WsError<object>
                 {
-                    Route = WsRoute.Error.GetDisplayName(),
-                    Message = "请求路由错误，请检查路由是否正确"
+                    Message = "请求路由错误，请检查路由是否正确",
+                    Data = null
                 };
-                await socket.SendMessageAsync(JObject.FromObject(errorMsg));
+                await socket.SendMessageAsync(errorMsg);
 
                 // 看需求是否断开
                 // await socket.DisconnectAsync();
@@ -71,12 +59,15 @@ public class WebsocketProcess
             // 转换枚举时或处理时可能抛异常
             _logger.LogError(ex, "WebSocket消息处理异常");
 
-            var errorMsg = new WsError<JObject>
+            var errorMsg = new WsError<object>
             {
-                Route = WsRoute.Error.GetDisplayName(),
-                Message = "服务器处理请求时发生异常"
+                Message = "服务器处理请求时发生异常",
+                Data = new
+                {
+                    exception = ex.Message
+                }
             };
-            await socket.SendMessageAsync(JObject.FromObject(errorMsg));
+            await socket.SendMessageAsync(errorMsg);
         }
     }
 }

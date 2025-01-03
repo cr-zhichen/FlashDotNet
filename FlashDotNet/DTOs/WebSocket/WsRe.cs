@@ -1,7 +1,7 @@
-﻿using FlashDotNet.Utils;
+﻿using FlashDotNet.Enum;
 using Newtonsoft.Json;
 
-namespace FlashDotNet.DTOs;
+namespace FlashDotNet.DTOs.WebSocket;
 
 /// <summary>
 /// 响应
@@ -13,7 +13,7 @@ public interface IWsRe<T>
     /// websocket返回的路由
     /// </summary>
     [JsonProperty("route")]
-    public string Route { get; set; }
+    public WsRoute Route { get; set; }
 
     /// <summary>
     /// 消息
@@ -38,19 +38,19 @@ public class WsOk<T> : IWsRe<T>
     /// websocket返回的路由
     /// </summary>
     [JsonProperty("route")]
-    public string Route { get; set; } = null!;
+    public required WsRoute Route { get; set; }
 
     /// <summary>
     /// 消息
     /// </summary>
     [JsonProperty("message")]
-    public string? Message { get; set; }
+    public required string? Message { get; set; }
 
     /// <summary>
     /// 返回数据
     /// </summary>
     [JsonProperty("data")]
-    public T? Data { get; set; }
+    public required T? Data { get; set; }
 }
 
 /// <summary>
@@ -63,17 +63,17 @@ public class WsError<T> : IWsRe<T>
     /// websocket返回的路由
     /// </summary>
     [JsonProperty("route")]
-    public string Route { get; set; } = Enum.WsRoute.Error.GetDisplayName();
+    public WsRoute Route { get; set; } = WsRoute.Error;
 
     /// <summary>
     /// 消息
     /// </summary>
     [JsonProperty("message")]
-    public string? Message { get; set; }
+    public required string? Message { get; set; }
 
     /// <summary>
     /// 返回数据
     /// </summary>
     [JsonProperty("data")]
-    public T? Data { get; set; }
+    public required T? Data { get; set; }
 }

@@ -2,12 +2,11 @@
 using System.Net.WebSockets;
 using System.Text;
 using FlashDotNet.DTOs;
-using FlashDotNet.DTOs.WebSocket.Requests;
+using FlashDotNet.DTOs.WebSocket;
 using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Utils;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace FlashDotNet.WS;
 
@@ -122,7 +121,7 @@ public class WebSocketController
         try
         {
             // 尝试反序列化请求
-            WsReq? req = JsonConvert.DeserializeObject<WsReq>(rawMessage);
+            WsReq? req = JsonConvert.DeserializeObject<WsReq>(rawMessage, JsonConfigurationHelper.GetDefaultSettings());
 
             if (req == null)
             {
@@ -137,9 +136,10 @@ public class WebSocketController
             _logger.LogError(jsonEx, $"JSON解析错误，连接ID：{socketId}");
 
             // 返回错误消息
-            var errorResponse = new WsError<JObject>
+            var errorResponse = new WsError<object>
             {
-                Message = "Json解析错误，请检查数据是否正确"
+                Message = "Json解析错误，请检查数据是否正确",
+                Data = "收到的消息：" + rawMessage
             };
             await SendAsync(webSocket, errorResponse);
         }
@@ -148,10 +148,10 @@ public class WebSocketController
             _logger.LogError(ex, $"处理消息时出现异常，连接ID：{socketId}");
 
             // 返回错误消息
-            var errorResponse = new WsError<JObject>
+            var errorResponse = new WsError<object>
             {
                 Message = "请求数据错误，请检查数据是否正确",
-                Data = JObject.FromObject(new { ex.Message, ex.StackTrace })
+                Data = new { ex.Message, ex.StackTrace }
             };
             await SendAsync(webSocket, errorResponse);
         }
@@ -162,10 +162,14 @@ public class WebSocketController
     /// </summary>
     private async Task SendInitialMessageAsync(WebSocket webSocket, string socketId)
     {
-        var initResponse = new WsOk<JObject>
+        var initResponse = new WsOk<object>
         {
-            Route = WsRoute.First.GetDisplayName(),
-            Data = JObject.FromObject(new { socketId })
+            Route = WsRoute.First,
+            Message = "连接成功",
+            Data = new
+            {
+                SocketId = socketId
+            }
         };
         await SendAsync(webSocket, initResponse);
     }
@@ -173,11 +177,11 @@ public class WebSocketController
     /// <summary>
     /// 广播消息
     /// </summary>
-    public static async Task BroadcastMessageAsync(string message)
+    public static async Task BroadcastMessageAsync<T>(IWsRe<T> data)
     {
         var tasks = Connections.Values
             .Where(conn => conn.WebSocket.State == WebSocketState.Open)
-            .Select(conn => SendAsync(conn.WebSocket, message));
+            .Select(conn => SendAsync(conn.WebSocket, data));
 
         await Task.WhenAll(tasks);
     }
@@ -202,11 +206,11 @@ public class WebSocketController
     /// <summary>
     /// 简化的发送方法：可发送对象或字符串
     /// </summary>
-    private static async Task SendAsync<T>(WebSocket webSocket, T data)
+    public static async Task SendAsync<T>(WebSocket webSocket, IWsRe<T> data)
     {
         if (webSocket.State != WebSocketState.Open) return;
 
-        string message = data as string ?? JsonConvert.SerializeObject(data);
+        string message = JsonConvert.SerializeObject(data, JsonConfigurationHelper.GetDefaultSettings());
 
         var bytes = Encoding.UTF8.GetBytes(message);
         var segment = new ArraySegment<byte>(bytes);

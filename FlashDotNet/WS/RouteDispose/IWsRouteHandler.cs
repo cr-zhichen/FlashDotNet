@@ -1,5 +1,5 @@
 ﻿using System.Net.WebSockets;
-using FlashDotNet.DTOs.WebSocket.Requests;
+using FlashDotNet.DTOs.WebSocket;
 using FlashDotNet.Enum;
 
 namespace FlashDotNet.WS.RouteDispose;

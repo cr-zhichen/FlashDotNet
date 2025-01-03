@@ -46,7 +46,6 @@
 
     <ItemGroup>
         <Folder Include="Build\" />
-        <Folder Include="DTOs\WebSocket\Responses\" />
     </ItemGroup>
 
     <ItemGroup>
