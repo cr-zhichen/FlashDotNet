@@ -25,6 +25,13 @@ public interface IJwtService
     Task<string> CreateTokenAsync(UserInfoTokenData userInfo);
 
     /// <summary>
+    /// 令牌刷新
+    /// </summary>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    Task<string> RefreshTokenAsync(string token);
+
+    /// <summary>
     /// 验证令牌身份
     /// </summary>
     /// <param name="token"></param>
@@ -119,6 +126,22 @@ public class JwtService : IJwtService
         var token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 
         return Task.FromResult(token);
+    }
+
+    /// <summary>
+    /// 刷新令牌
+    /// </summary>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    public async Task<string> RefreshTokenAsync(string token)
+    {
+        UserInfoTokenData? userInfo = await GetUserInfoAsync(token);
+        if (userInfo == null)
+        {
+            throw new Exception("无效的令牌：未找到用户信息。");
+        }
+
+        return await CreateTokenAsync(userInfo);
     }
 
     /// <summary>
