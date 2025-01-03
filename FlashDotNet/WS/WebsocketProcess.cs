@@ -23,27 +23,7 @@ public static class WebsocketProcess
     /// <param name="data"></param>
     public static async Task Process(UserConnection socket, WsReq data)
     {
-        string routeString;
-
-        try
-        {
-            routeString = data.Route ?? throw new InvalidOperationException();
-        }
-        catch (Exception e)
-        {
-            var re = new WsError<JObject>
-            {
-                Route = Route.Error.GetDisplayName(),
-                Message = "路由请求错误，请检查路由是否正确",
-                Data = JObject.FromObject(e),
-            };
-
-            JObject reObject = JObject.FromObject(re);
-            await socket.SendMessageAsync(reObject);
-            throw;
-        }
-
-        if (RouteHandlers.TryGetValue(routeString, out var handler))
+        if (RouteHandlers.TryGetValue(data.Route ?? "", out var handler))
         {
             await handler(socket, data);
         }
@@ -54,6 +34,8 @@ public static class WebsocketProcess
                 Route = Route.Error.GetDisplayName(),
                 Message = "请求路由错误，请检查路由是否正确",
             }));
+            
+            await socket.DisconnectAsync();
         }
     }
 

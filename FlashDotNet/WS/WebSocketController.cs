@@ -19,10 +19,10 @@ namespace FlashDotNet.WS;
 public class WebSocketController
 {
     /// <summary>
-    /// 用户连接集合
+    /// 用户连接集合（线程安全）
     /// </summary>
-    private readonly static ConcurrentDictionary<string, UserConnection> Connections =
-        new ConcurrentDictionary<string, UserConnection>();
+    private readonly static ConcurrentDictionary<string, UserConnection> Connections
+        = new ConcurrentDictionary<string, UserConnection>();
 
     private readonly IConfiguration _configuration;
     private readonly AppDbContext _context;
@@ -31,7 +31,10 @@ public class WebSocketController
     /// <summary>
     /// 构造函数
     /// </summary>
-    public WebSocketController(AppDbContext context, IConfiguration configuration, ILogger<WebSocketController> logger)
+    public WebSocketController(
+        AppDbContext context,
+        IConfiguration configuration,
+        ILogger<WebSocketController> logger)
     {
         _context = context;
         _configuration = configuration;
@@ -39,92 +42,170 @@ public class WebSocketController
     }
 
     /// <summary>
-    /// 处理WebSocket请求
+    /// 处理WebSocket连接
     /// </summary>
-    /// <param name="context"></param>
-    /// <param name="webSocket"></param>
-    public async Task HandleWebSocketAsync(HttpContext context, WebSocket webSocket)
+    public async Task HandleWebSocketAsync(HttpContext httpContext, WebSocket webSocket)
     {
-        var socketId = context.Connection.Id; // 使用连接ID作为WebSocket的唯一标识
-        Connections.TryAdd(socketId, new UserConnection(webSocket));
+        var socketId = httpContext.Connection.Id; // 使用连接ID作为WebSocket的唯一标识
+        Connections.TryAdd(socketId, new UserConnection(webSocket, socketId));
 
-        var initialBufferSize = 4096; // 初始缓冲区大小
-        var buffer = new byte[initialBufferSize];
-        WebSocketReceiveResult result;
+        try
+        {
+            // 发送连接成功的初始消息
+            await SendInitialMessageAsync(webSocket, socketId);
 
-        IWsRe<JObject> send = new WsOk<JObject>
+            // 循环接收消息，直到WebSocket关闭
+            await ReceiveMessageLoopAsync(socketId, webSocket);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"WebSocket异常，连接ID：{socketId}");
+        }
+        finally
+        {
+            // 清理并关闭连接
+            await CloseWebSocketAsync(socketId);
+        }
+    }
+
+    /// <summary>
+    /// 循环接收消息并处理
+    /// </summary>
+    private async Task ReceiveMessageLoopAsync(string socketId, WebSocket webSocket)
+    {
+        var buffer = new byte[4096]; // 建议的初始缓冲区大小
+        var messageBuffer = new List<byte>(); // 用于拼接分段消息
+
+        while (webSocket.State == WebSocketState.Open)
+        {
+
+            try
+            {
+                WebSocketReceiveResult result = await webSocket.ReceiveAsync(
+                    new ArraySegment<byte>(buffer),
+                    CancellationToken.None);
+
+                if (result.MessageType == WebSocketMessageType.Close)
+                    break;
+
+                // 拼接分段消息
+                messageBuffer.AddRange(buffer[..result.Count]);
+
+                // 如果消息还没结束，则继续接收
+                if (!result.EndOfMessage) continue;
+
+                // 消息完整，开始处理
+                var message = Encoding.UTF8.GetString(messageBuffer.ToArray());
+                messageBuffer.Clear(); // 重置
+
+                _logger.LogInformation(
+                    $"接收到消息，长度：{message.Length} 字符，连接ID：{socketId}，时间：{DateTime.Now:g}\n" +
+                    $"消息内容：\n{message}");
+
+                // 处理消息
+                await ProcessReceivedMessageAsync(socketId, message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    $"接收/处理消息时出现异常，连接ID：{socketId}, 当前消息大小：{messageBuffer.Count} 字节");
+
+                // 如果出现异常可酌情选择：清空缓冲区并继续，或者直接跳出循环
+                messageBuffer.Clear();
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 处理接收到的消息
+    /// </summary>
+    private async Task ProcessReceivedMessageAsync(string socketId, string rawMessage)
+    {
+        if (!Connections.TryGetValue(socketId, out var userConnection)) return;
+
+        var webSocket = userConnection.WebSocket;
+        try
+        {
+            // 尝试反序列化请求
+            WsReq req = JsonConvert.DeserializeObject<WsReq>(rawMessage)
+                        ?? throw new InvalidOperationException("反序列化后的对象为null");
+
+            // 进行业务处理
+            await WebsocketProcess.Process(userConnection, req);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"处理消息时出现异常，连接ID：{socketId}");
+
+            // 返回错误消息
+            var errorResponse = new WsError<JObject>
+            {
+                Message = "请求数据错误，请检查数据是否正确",
+                Data = JObject.FromObject(new { ex.Message, ex.StackTrace })
+            };
+            await SendAsync(webSocket, errorResponse);
+        }
+    }
+
+    /// <summary>
+    /// 发送初始消息，告知客户端连接ID等信息
+    /// </summary>
+    private async Task SendInitialMessageAsync(WebSocket webSocket, string socketId)
+    {
+        var initResponse = new WsOk<JObject>
         {
             Route = Route.First.GetDisplayName(),
-            Data = JObject.FromObject(new
-            {
-                socketId = socketId
-            }),
+            Data = JObject.FromObject(new { socketId })
         };
-
-        // 发送首次连接的消息
-        var sendBuffer = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(send));
-        await webSocket.SendAsync(new ArraySegment<byte>(sendBuffer, 0, sendBuffer.Length),
-            WebSocketMessageType.Text, true, CancellationToken.None);
-
-        do
-        {
-            result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-
-            if (result.MessageType != WebSocketMessageType.Close)
-            {
-                // 如果消息大小超过当前缓冲区大小，则动态调整缓冲区大小
-                if (result.Count > buffer.Length)
-                {
-                    buffer = new byte[result.Count];
-                }
-
-                //计算消息大小 单位：KB
-                double size = Math.Round((double)result.Count / 1024, 2);
-                _logger.LogInformation(
-                    $"接收到消息，大小：{size}KB，时间：{DateTime.Now:g}，连接ID：{socketId}，\n消息内容：\n{Encoding.UTF8.GetString(buffer, 0, result.Count)}\n");
-
-                // 接收到的消息
-                string receivedMessage = Encoding.UTF8.GetString(buffer, 0, result.Count);
-
-                try
-                {
-                    WsReq req = JsonConvert.DeserializeObject<WsReq>(receivedMessage) ??
-                                throw new InvalidOperationException();
-                    await WebsocketProcess.Process(Connections[socketId], req);
-                }
-                catch (Exception e)
-                {
-                    IWsRe<JObject> re = new WsError<JObject>
-                    {
-                        Message = "请求数据错误，请检查数据是否正确",
-                        Data = JObject.FromObject(e),
-                    };
-                    // 生成返回的消息
-                    var responseBuffer = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(re));
-                    await webSocket.SendAsync(new ArraySegment<byte>(responseBuffer, 0, responseBuffer.Length),
-                        result.MessageType, result.EndOfMessage, CancellationToken.None);
-                }
-            }
-        } while (!result.CloseStatus.HasValue);
-
-        Connections.TryRemove(socketId, out _);
-        await webSocket.CloseAsync(result.CloseStatus.Value, result.CloseStatusDescription, CancellationToken.None);
+        await SendAsync(webSocket, initResponse);
     }
 
     /// <summary>
     /// 广播消息
     /// </summary>
-    /// <param name="message"></param>
     public static async Task BroadcastMessageAsync(string message)
     {
-        foreach (var pair in Connections)
+        var tasks = Connections.Values
+            .Where(conn => conn.WebSocket.State == WebSocketState.Open)
+            .Select(conn => SendAsync(conn.WebSocket, message));
+
+        await Task.WhenAll(tasks);
+    }
+
+    /// <summary>
+    /// 关闭WebSocket连接
+    /// </summary>
+    public static async Task CloseWebSocketAsync(string socketId)
+    {
+        if (Connections.TryRemove(socketId, out var connection))
         {
-            if (pair.Value.WebSocket.State == WebSocketState.Open)
+            if (connection.WebSocket.State == WebSocketState.Open)
             {
-                var buffer = Encoding.UTF8.GetBytes(message);
-                await pair.Value.WebSocket.SendAsync(new ArraySegment<byte>(buffer, 0, buffer.Length),
-                    WebSocketMessageType.Text, true, CancellationToken.None);
+                await connection.WebSocket.CloseAsync(
+                    WebSocketCloseStatus.NormalClosure,
+                    "Close WebSocket",
+                    CancellationToken.None);
             }
         }
+    }
+
+    /// <summary>
+    /// 简化的发送方法：可发送对象或字符串
+    /// </summary>
+    private static async Task SendAsync<T>(WebSocket webSocket, T data)
+    {
+        if (webSocket.State != WebSocketState.Open) return;
+
+        string message = data as string ?? JsonConvert.SerializeObject(data);
+
+        var bytes = Encoding.UTF8.GetBytes(message);
+        var segment = new ArraySegment<byte>(bytes);
+
+        await webSocket.SendAsync(
+            segment,
+            WebSocketMessageType.Text,
+            endOfMessage: true,
+            cancellationToken: CancellationToken.None);
     }
 }
