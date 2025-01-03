@@ -11,7 +11,7 @@ namespace FlashDotNet.WS.RouteDispose;
 /// 认证路由处理器
 /// </summary>
 [AddScopedAsImplementedInterfaces]
-public class AuthRouteHandlers : WsRouteHandler
+public class AuthRouteHandlers : WsRouteHandler<AuthRouteHandlers.AuthReq>
 {
     /// <inheritdoc />
     public AuthRouteHandlers(IJwtService jwtService) : base(jwtService)
@@ -25,20 +25,9 @@ public class AuthRouteHandlers : WsRouteHandler
     override protected UserRole? Role => null;
 
     /// <inheritdoc />
-    public override async Task HandleAsync(UserConnection userConnection, WsReq data)
+    override protected async Task HandleAsync(UserConnection userConnection, AuthReq data)
     {
-        AuthReq authReq;
-
-        try
-        {
-            authReq = JsonConvert.DeserializeObject<AuthReq>(data.Data?.ToString() ?? "") ?? throw new InvalidOperationException();
-        }
-        catch (Exception)
-        {
-            throw new ArgumentException("请求数据格式错误");
-        }
-
-        userConnection.Token = authReq.Token;
+        userConnection.Token = data.Token;
 
         await userConnection.IsAuthenticated(JwtService);
 

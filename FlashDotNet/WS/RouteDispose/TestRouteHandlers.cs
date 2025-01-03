@@ -10,7 +10,7 @@ namespace FlashDotNet.WS.RouteDispose;
 /// 测试路由处理器
 /// </summary>
 [AddScopedAsImplementedInterfaces]
-public class TestRouteHandlers : WsRouteHandler
+public class TestRouteHandlers : WsRouteHandler<object>
 {
     /// <inheritdoc />
     public TestRouteHandlers(IJwtService jwtService) : base(jwtService)
@@ -24,13 +24,13 @@ public class TestRouteHandlers : WsRouteHandler
     override protected UserRole? Role => UserRole.Admin;
 
     /// <inheritdoc />
-    public override async Task HandleAsync(UserConnection userConnection, WsReq data)
+    override protected async Task HandleAsync(UserConnection userConnection, object data)
     {
         await userConnection.SendMessageAsync(new WsOk<object>
         {
             Route = WsRoute.Test,
-            Message = "Test",
-            Data = null
+            Message = "test",
+            Data = data
         });
     }
 }
