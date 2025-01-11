@@ -1,7 +1,11 @@
-﻿using FlashDotNet.Infrastructure;
+﻿using FlashDotNet.Attribute;
+using FlashDotNet.Enum;
+using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
 using FlashDotNet.Services.CacheService;
+using FlashDotNet.Utils;
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 
 namespace FlashDotNet.SignalR.Helper;
 
@@ -54,7 +58,7 @@ public abstract class HubHandler : Hub
     /// 验证
     /// </summary>
     /// <param name="token"></param>
-    [HubMethodName("auth")]
+    [SignalRHubName(SignalRRoute.Auth)]
     public async Task Auth(string token)
     {
         _logger.LogInformation($"[SignalR] 用户 {Context.ConnectionId} 验证 Token");
@@ -62,14 +66,43 @@ public abstract class HubHandler : Hub
         if (!isValid)
         {
             _logger.LogWarning($"[SignalR] 用户 {Context.ConnectionId} 验证失败：{errorMessage}");
-            await Clients.Caller.SendAsync("auth_failed", errorMessage);
+            await SendAsync(SignalRRoute.Error, errorMessage ?? "验证失败");
             Context.Abort();
         }
-        else
-        {
-            _logger.LogInformation($"[SignalR] 用户 {Context.ConnectionId} 验证成功");
-            CacheService.Set<string>(CachePrefix + Context.ConnectionId, token);
-            await Clients.Caller.SendAsync("auth_success");
-        }
+
+        _logger.LogInformation($"[SignalR] 用户 {Context.ConnectionId} 验证成功");
+        CacheService.Set<string>(CachePrefix + Context.ConnectionId, token);
+        await SendAsync(SignalRRoute.Auth, "验证成功");
+    }
+
+    /// <summary>
+    /// 发送消息
+    /// </summary>
+    /// <param name="route">发送路由</param>
+    /// <param name="obj">发送对象</param>
+    protected internal async Task SendAsync(SignalRRoute route, object obj)
+    {
+        await Clients.Caller.SendAsync(route.GetDisplayName(), JsonConvert.SerializeObject(obj, JsonConfigurationHelper.GetDefaultSettings()));
+    }
+
+    /// <summary>
+    /// 发送消息给所有人
+    /// </summary>
+    /// <param name="route">发送路由</param>
+    /// <param name="obj">发送对象</param>
+    protected internal async Task SendAllAsync(SignalRRoute route, object obj)
+    {
+        await Clients.All.SendAsync(route.GetDisplayName(), JsonConvert.SerializeObject(obj, JsonConfigurationHelper.GetDefaultSettings()));
+    }
+
+    /// <summary>
+    /// 发送消息给指定用户
+    /// </summary>
+    /// <param name="route">发送路由</param>
+    /// <param name="userId">用户ID</param>
+    /// <param name="obj">发送对象</param>
+    protected internal async Task SendUserAsync(SignalRRoute route, string userId, object obj)
+    {
+        await Clients.User(userId).SendAsync(route.GetDisplayName(), JsonConvert.SerializeObject(obj, JsonConfigurationHelper.GetDefaultSettings()));
     }
 }

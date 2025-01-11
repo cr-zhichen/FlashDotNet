@@ -40,6 +40,7 @@ public class AuthHubAttribute : AbstractInterceptorAttribute
     /// 方法执行前后拦截
     /// </summary>
     /// <param name="context"></param>
+    /// <param name="next"></param>
     /// <returns></returns>
     public override async Task Invoke(AspectContext context, AspectDelegate next)
     {
@@ -53,7 +54,7 @@ public class AuthHubAttribute : AbstractInterceptorAttribute
 
         if (string.IsNullOrEmpty(token))
         {
-            await hubHandlerInstance.Clients.Caller.SendAsync("auth_failed", "未找到Token");
+            await hubHandlerInstance.SendAsync(SignalRRoute.Error, "未找到Token");
             hubHandlerInstance.Context.Abort();
             return;
         }
@@ -62,7 +63,7 @@ public class AuthHubAttribute : AbstractInterceptorAttribute
 
         if (!isValid.IsValid)
         {
-            await hubHandlerInstance.Clients.Caller.SendAsync("auth_failed", isValid.ErrorMessage);
+            await hubHandlerInstance.SendAsync(SignalRRoute.Error, isValid.ErrorMessage ?? "Token验证失败");
             hubHandlerInstance.Context.Abort();
             return;
         }

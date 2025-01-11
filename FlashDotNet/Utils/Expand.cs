@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Konscious.Security.Cryptography;
+using Microsoft.AspNetCore.SignalR;
 
 namespace FlashDotNet.Utils;
 
