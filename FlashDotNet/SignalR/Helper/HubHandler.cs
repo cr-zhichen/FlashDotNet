@@ -1,0 +1,75 @@
+﻿using FlashDotNet.Infrastructure;
+using FlashDotNet.Jwt;
+using FlashDotNet.Services.CacheService;
+using Microsoft.AspNetCore.SignalR;
+
+namespace FlashDotNet.SignalR.Helper;
+
+/// <summary>
+/// SignalR Hub 处理器
+/// </summary>
+[AddTransient]
+public abstract class HubHandler : Hub
+{
+    /// <summary>
+    /// 缓存前缀
+    /// </summary>
+    public const string CachePrefix = "SignalR_Token_";
+
+    /// <summary>
+    /// JWT 服务
+    /// </summary>
+    public readonly IJwtService JwtService;
+
+    /// <summary>
+    /// 缓存服务
+    /// </summary>
+    public readonly ICacheService CacheService;
+
+    private readonly ILogger<HubHandler> _logger;
+
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    protected HubHandler(ILogger<HubHandler> logger, IJwtService jwtService, ICacheService cacheService)
+    {
+        _logger = logger;
+        JwtService = jwtService;
+        CacheService = cacheService;
+    }
+
+    /// <summary>
+    /// 断开连接
+    /// </summary>
+    /// <param name="exception"></param>
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        var connectionId = Context.ConnectionId;
+        _logger.LogInformation($"[SignalR] 用户 {connectionId} 断开连接");
+        CacheService.Remove(CachePrefix + connectionId);
+        await base.OnDisconnectedAsync(exception);
+    }
+
+    /// <summary>
+    /// 验证
+    /// </summary>
+    /// <param name="token"></param>
+    [HubMethodName("auth")]
+    public async Task Auth(string token)
+    {
+        _logger.LogInformation($"[SignalR] 用户 {Context.ConnectionId} 验证 Token");
+        var (isValid, errorMessage) = await JwtService.ValidateTokenAsync(token);
+        if (!isValid)
+        {
+            _logger.LogWarning($"[SignalR] 用户 {Context.ConnectionId} 验证失败：{errorMessage}");
+            await Clients.Caller.SendAsync("auth_failed", errorMessage);
+            Context.Abort();
+        }
+        else
+        {
+            _logger.LogInformation($"[SignalR] 用户 {Context.ConnectionId} 验证成功");
+            CacheService.Set<string>(CachePrefix + Context.ConnectionId, token);
+            await Clients.Caller.SendAsync("auth_success");
+        }
+    }
+}

@@ -1,23 +1,25 @@
 ﻿using FlashDotNet.Attribute;
 using FlashDotNet.Enum;
+using FlashDotNet.Infrastructure;
+using FlashDotNet.Jwt;
+using FlashDotNet.Services.CacheService;
+using FlashDotNet.SignalR.Helper;
 using Microsoft.AspNetCore.SignalR;
 
 namespace FlashDotNet.SignalR;
 
-public class ChatHub : Hub
+[AddTransient]
+public class ChatHub : HubHandler
 {
-    public override async Task OnConnectedAsync()
+    /// <summary>
+    /// 构造函数
+    /// </summary>
+    public ChatHub(
+        ILogger<ChatHub> logger,
+        IJwtService jwtService,
+        ICacheService cacheService
+    ) : base(logger, jwtService, cacheService)
     {
-        var connectionId = Context.ConnectionId;
-        Console.WriteLine($"[SignalR] 用户 {connectionId} 连接成功");
-        await base.OnConnectedAsync();
-    }
-
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-        var connectionId = Context.ConnectionId;
-        Console.WriteLine($"[SignalR] 用户 {connectionId} 断开连接");
-        await base.OnDisconnectedAsync(exception);
     }
 
     /// <summary>
@@ -35,9 +37,9 @@ public class ChatHub : Hub
     /// 广播消息
     /// </summary>
     /// <param name="message"></param>
-    [Auth(UserRole.Admin)]
+    [AuthHub(UserRole.Admin)]
     [HubMethodName("broadcast_message")]
-    public async Task BroadcastMessage(string message)
+    public virtual async Task BroadcastMessage(string message)
     {
         await Clients.All.SendAsync("test_return", message);
     }

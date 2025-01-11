@@ -1,6 +1,7 @@
 #region Using
 
 using System.Reflection;
+using AspectCore.Extensions.DependencyInjection;
 using EasyCaching.Core.Configurations;
 using EFCoreSecondLevelCacheInterceptor;
 using FlashDotNet.Data;
@@ -61,6 +62,8 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 builder.Host.UseSerilog();
 
 #endregion
+
+builder.Host.UseServiceProviderFactory(new DynamicProxyServiceProviderFactory());
 
 #region 响应压缩配置
 
