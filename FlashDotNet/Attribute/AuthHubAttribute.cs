@@ -1,8 +1,5 @@
 ﻿using FlashDotNet.Enum;
 using FlashDotNet.SignalR.Helper;
-using Microsoft.AspNetCore.SignalR;
-using System;
-using System.Threading.Tasks;
 using AspectCore.DynamicProxy;
 
 namespace FlashDotNet.Attribute;

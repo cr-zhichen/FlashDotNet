@@ -28,7 +28,7 @@ public class ChatHub : HubHandler
     /// </summary>
     /// <param name="message"></param>
     [SignalRHubName(SignalRRoute.Test)]
-    public async Task TestMessage(string message)
+    public async Task Test(string message)
     {
         var connectionId = Context.ConnectionId;
         await SendAsync(SignalRRoute.Test, $"[服务器回报] 用户 {connectionId}： {message}");
@@ -40,7 +40,7 @@ public class ChatHub : HubHandler
     /// <param name="message"></param>
     [AuthHub(UserRole.Admin)]
     [SignalRHubName(SignalRRoute.BroadcastMessage)]
-    public virtual async Task BroadcastMessage(string message)
+    public virtual async Task Broadcast(string message)
     {
         await SendAllAsync(SignalRRoute.Test, message);
     }
