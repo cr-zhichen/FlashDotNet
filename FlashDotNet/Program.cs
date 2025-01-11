@@ -451,6 +451,7 @@ app.UseStaticFiles(new StaticFileOptions
     {
         ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
         ctx.Context.Response.Headers.Append("Accept-Ranges", "bytes");
+        ctx.Context.Response.Headers.Append("Access-Control-Allow-Credentials", "true");
 
         // 自动设置常见视频格式的 Content-Type
         var fileExtension = Path.GetExtension(ctx.File.Name).ToLowerInvariant();
