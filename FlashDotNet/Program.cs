@@ -78,7 +78,11 @@ builder.Services.AddResponseCompression(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
-        corsPolicyBuilder => corsPolicyBuilder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+        corsPolicyBuilder => corsPolicyBuilder
+            .SetIsOriginAllowed(_ => true) // 允许所有来源
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()); // 允许携带凭据
 });
 
 #endregion
