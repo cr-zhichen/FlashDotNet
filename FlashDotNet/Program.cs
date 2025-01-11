@@ -9,6 +9,7 @@ using FlashDotNet.Filter;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
 using FlashDotNet.Middleware;
+using FlashDotNet.SignalR;
 using FlashDotNet.Utils;
 using FlashDotNet.WS;
 using FlashDotNet.WS.Helper;
@@ -345,6 +346,12 @@ builder.Services.Scan(scan => scan
 
 #endregion
 
+#region SignalR配置
+
+builder.Services.AddSignalR();
+
+#endregion
+
 var app = builder.Build();
 
 app.UseSerilogRequestLogging(); // 使用 Serilog 记录 HTTP 请求日志
@@ -421,6 +428,22 @@ app.UseAuthorization();
 // 如果使用 app.MapControllers() 则会导致在开发环境下app.UseVueCli()与app.UseRouting()冲突
 #pragma warning disable ASP0014
 app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+#pragma warning restore ASP0014
+
+#endregion
+
+#region SignalR
+
+#pragma warning disable ASP0014
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chatHub")
+        .RequireCors(corsPolicyBuilder => corsPolicyBuilder
+            .SetIsOriginAllowed(_ => true) // 允许所有来源
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()); // 允许携带凭据
+});
 #pragma warning restore ASP0014
 
 #endregion
