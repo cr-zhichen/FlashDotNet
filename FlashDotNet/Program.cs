@@ -16,6 +16,7 @@ using FlashDotNet.WS.Helper;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
@@ -348,7 +349,10 @@ builder.Services.Scan(scan => scan
 
 #region SignalR配置
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.AddFilter<AuthHubFilter>();
+});
 
 #endregion
 
