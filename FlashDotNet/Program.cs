@@ -352,10 +352,7 @@ builder.Services.Scan(scan => scan
 
 #region SignalR配置
 
-builder.Services.AddSignalR(options =>
-{
-    options.AddFilter<AuthHubFilter>();
-});
+builder.Services.AddSignalR(options => { options.AddFilter<AuthHubFilter>(); }).AddNewtonsoftJsonProtocol(options => options.ApplyDefaultSettings());
 
 #endregion
 

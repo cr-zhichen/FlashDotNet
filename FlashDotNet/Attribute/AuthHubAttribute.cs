@@ -1,6 +1,7 @@
 ﻿using FlashDotNet.Enum;
 using FlashDotNet.SignalR.Helper;
 using AspectCore.DynamicProxy;
+using FlashDotNet.DTOs;
 
 namespace FlashDotNet.Attribute;
 
@@ -51,7 +52,10 @@ public class AuthHubAttribute : AbstractInterceptorAttribute
 
         if (string.IsNullOrEmpty(token))
         {
-            await hubHandlerInstance.SendAsync(SignalRRoute.Error, "未找到Token");
+            await hubHandlerInstance.SendAsync(SignalRRoute.Error, new Ok<object>()
+            {
+                Message = "Token不存在"
+            });
             hubHandlerInstance.Context.Abort();
             return;
         }
@@ -60,7 +64,10 @@ public class AuthHubAttribute : AbstractInterceptorAttribute
 
         if (!isValid.IsValid)
         {
-            await hubHandlerInstance.SendAsync(SignalRRoute.Error, isValid.ErrorMessage ?? "Token验证失败");
+            await hubHandlerInstance.SendAsync(SignalRRoute.Error, new Ok<object>()
+            {
+                Message = isValid.ErrorMessage ?? "Token验证失败"
+            });
             hubHandlerInstance.Context.Abort();
             return;
         }

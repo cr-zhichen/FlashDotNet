@@ -1,4 +1,5 @@
 ﻿using FlashDotNet.Attribute;
+using FlashDotNet.DTOs;
 using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
@@ -34,7 +35,10 @@ public class ChatHub : HubHandler
     public async Task Test(string message)
     {
         var connectionId = Context.ConnectionId;
-        await SendAsync(SignalRRoute.Test, $"[服务器回报] 用户 {connectionId}： {message}");
+        await SendAsync(SignalRRoute.Test, new Ok<object>()
+        {
+            Message = message
+        });
     }
 
     /// <summary>
@@ -45,6 +49,9 @@ public class ChatHub : HubHandler
     [SignalRHubName(SignalRRoute.BroadcastMessage)]
     public virtual async Task Broadcast(string message)
     {
-        await SendAllAsync(SignalRRoute.Test, message);
+        await SendAllAsync(SignalRRoute.Test, new Ok<object>()
+        {
+            Message = message
+        });
     }
 }

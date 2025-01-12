@@ -1,4 +1,5 @@
 ﻿using FlashDotNet.Attribute;
+using FlashDotNet.DTOs;
 using FlashDotNet.Enum;
 using FlashDotNet.Infrastructure;
 using FlashDotNet.Jwt;
@@ -65,13 +66,19 @@ public abstract class HubHandler : Hub
         if (!isValid)
         {
             _logger.LogWarning($"[SignalR] 用户 {Context.ConnectionId} 验证失败：{errorMessage}");
-            await SendAsync(SignalRRoute.Error, errorMessage ?? "验证失败");
+            await SendAsync(SignalRRoute.Error, new Ok<object>()
+            {
+                Message = errorMessage ?? "验证失败"
+            });
             Context.Abort();
         }
 
         _logger.LogInformation($"[SignalR] 用户 {Context.ConnectionId} 验证成功");
         CacheService.Set<string>(CachePrefix + Context.ConnectionId, token);
-        await SendAsync(SignalRRoute.Auth, "验证成功");
+        await SendAsync(SignalRRoute.Auth, new Ok<object>()
+        {
+            Message = "验证成功"
+        });
     }
 
     /// <summary>
@@ -79,9 +86,9 @@ public abstract class HubHandler : Hub
     /// </summary>
     /// <param name="route">发送路由</param>
     /// <param name="obj">发送对象</param>
-    protected internal async Task SendAsync(SignalRRoute route, object obj)
+    protected internal async Task SendAsync<T>(SignalRRoute route, IRe<T> obj)
     {
-        await Clients.Caller.SendAsync(route.GetDisplayName(), JsonConvert.SerializeObject(obj, JsonConfigurationHelper.GetDefaultSettings()));
+        await Clients.Caller.SendAsync(route.GetDisplayName(), obj);
     }
 
     /// <summary>
@@ -89,9 +96,9 @@ public abstract class HubHandler : Hub
     /// </summary>
     /// <param name="route">发送路由</param>
     /// <param name="obj">发送对象</param>
-    protected internal async Task SendAllAsync(SignalRRoute route, object obj)
+    protected internal async Task SendAllAsync<T>(SignalRRoute route, IRe<T> obj)
     {
-        await Clients.All.SendAsync(route.GetDisplayName(), JsonConvert.SerializeObject(obj, JsonConfigurationHelper.GetDefaultSettings()));
+        await Clients.All.SendAsync(route.GetDisplayName(), obj);
     }
 
     /// <summary>
@@ -100,8 +107,8 @@ public abstract class HubHandler : Hub
     /// <param name="route">发送路由</param>
     /// <param name="userId">用户ID</param>
     /// <param name="obj">发送对象</param>
-    protected internal async Task SendUserAsync(SignalRRoute route, string userId, object obj)
+    protected internal async Task SendUserAsync<T>(SignalRRoute route, string userId, IRe<T> obj)
     {
-        await Clients.User(userId).SendAsync(route.GetDisplayName(), JsonConvert.SerializeObject(obj, JsonConfigurationHelper.GetDefaultSettings()));
+        await Clients.User(userId).SendAsync(route.GetDisplayName(), obj);
     }
 }

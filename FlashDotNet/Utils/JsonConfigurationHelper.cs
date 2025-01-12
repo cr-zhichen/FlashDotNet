@@ -1,5 +1,6 @@
 ﻿using FlashDotNet.Converters;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -43,5 +44,18 @@ public static class JsonConfigurationHelper
         options.SerializerSettings.ReferenceLoopHandling = settings.ReferenceLoopHandling;
         options.SerializerSettings.NullValueHandling = settings.NullValueHandling;
         options.SerializerSettings.ContractResolver = settings.ContractResolver;
+    }
+
+    /// <summary>
+    /// 应用默认的Json配置
+    /// </summary>
+    /// <param name="options"></param>
+    public static void ApplyDefaultSettings(this NewtonsoftJsonHubProtocolOptions options)
+    {
+        var settings = GetDefaultSettings();
+        options.PayloadSerializerSettings.Converters = settings.Converters;
+        options.PayloadSerializerSettings.ReferenceLoopHandling = settings.ReferenceLoopHandling;
+        options.PayloadSerializerSettings.NullValueHandling = settings.NullValueHandling;
+        options.PayloadSerializerSettings.ContractResolver = settings.ContractResolver;
     }
 }
