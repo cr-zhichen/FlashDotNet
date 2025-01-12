@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace FlashDotNet.SignalR;
 
+/// <summary>
+/// 聊天室 Hub
+/// </summary>
 [AddTransient]
 public class ChatHub : HubHandler
 {

@@ -19,20 +19,32 @@ public class MethodValidationService : IHostedService
         var invalidMethods = assembly.GetTypes()
             .SelectMany(type => type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             .Where(method => method.GetCustomAttributes(typeof(AbstractInterceptorAttribute), false).Length > 0)
-            .Where(method => !method.IsVirtual)
+            .Where(method => !method.IsVirtual || !IsDependencyInjected(method.DeclaringType!))
             .ToList();
 
         if (invalidMethods.Any())
         {
-            var errorMessages = new List<string>();
             foreach (var method in invalidMethods)
             {
-                errorMessages.Add($"错误: 方法 '{method.Name}' 被 AbstractInterceptorAttribute 修饰，但不是虚方法。");
+                if (!method.IsVirtual)
+                {
+                    Console.WriteLine($"错误: 方法 '{method.Name}' 被 AbstractInterceptorAttribute 修饰，但不是虚方法。");
+                }
+                else if (!IsDependencyInjected(method.DeclaringType!))
+                {
+                    Console.WriteLine($"错误: 方法 '{method.Name}' 被 AbstractInterceptorAttribute 修饰，但其类未被依赖注入。");
+                }
             }
-            Console.WriteLine(string.Join(Environment.NewLine, errorMessages));
             throw new InvalidOperationException($"共有 {invalidMethods.Count} 个方法不符合规则，请检查日志。");
         }
         return Task.CompletedTask;
+    }
+
+    private bool IsDependencyInjected(Type type)
+    {
+        // 检查类是否有依赖注入特性
+        return type.GetCustomAttributes(typeof(AddTransientAttribute), false).Length > 0 ||
+               type.GetCustomAttributes(typeof(AddTransientAsImplementedInterfacesAttribute), false).Length > 0;
     }
 
     /// <inheritdoc />

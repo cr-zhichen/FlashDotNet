@@ -12,7 +12,6 @@ namespace FlashDotNet.SignalR.Helper;
 /// <summary>
 /// SignalR Hub 处理器
 /// </summary>
-[AddTransient]
 public abstract class HubHandler : Hub
 {
     /// <summary>
