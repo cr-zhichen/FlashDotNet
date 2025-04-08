@@ -195,7 +195,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 #region 数据库连接配置
 
-var databaseOptions = (builder.Configuration.GetSection("DatabaseConnection").Get<string>() ?? "").ToLower();
+var databaseOptions = (builder.Configuration.GetSection("DefaultConnection").Get<string>() ?? "").ToLower();
 
 // 在程序启动时打印使用的数据库类型
 if (databaseOptions == DatabaseType.Mysql.GetDisplayName().ToLower())
